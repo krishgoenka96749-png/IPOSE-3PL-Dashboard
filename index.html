@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Whipship — Fulfillment OS</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -48,6 +50,42 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* ─── ROLE SWITCHER ───────────────────────────────────────────────────────── */
+  #role-switcher {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 36px;
+    background: #0d0d0d;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    z-index: 9999;
+  }
+
+  .role-tab {
+    padding: 4px 14px;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    color: var(--ash);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .role-tab:hover { color: var(--chalk-80); background: var(--chalk-05); }
+  .role-tab.active { color: var(--chalk); background: var(--carbon3); }
+
+  /* offset all views below switcher */
+  #app { padding-top: 36px; }
+  #customer-view, #admin-view { padding-top: 36px; }
+  #customer-view, #admin-view { display: none; }
+
   /* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
   #app { display: flex; height: 100vh; overflow: hidden; }
 
@@ -79,576 +117,136 @@
     flex-shrink: 0;
   }
 
-  .logo-mark {
-    display: flex;
-    align-items: baseline;
-    gap: 0;
-    margin-bottom: 2px;
-  }
-
-  .logo-text {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 30px;
-    letter-spacing: 3px;
-    color: var(--chalk);
-    line-height: 1;
-  }
-
+  .logo-mark { display: flex; align-items: baseline; gap: 0; margin-bottom: 2px; }
+  .logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 3px; color: var(--chalk); line-height: 1; }
   .logo-text .accent { color: var(--red); }
-
-  .logo-slash {
-    width: 3px;
-    height: 24px;
-    background: var(--red);
-    margin: 0 0 0 3px;
-    transform: skewX(-12deg);
-    flex-shrink: 0;
-  }
-
-  .logo-tag {
-    font-size: 9px;
-    color: var(--ash);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
+  .logo-slash { width: 3px; height: 24px; background: var(--red); margin: 0 0 0 3px; transform: skewX(-12deg); flex-shrink: 0; }
+  .logo-tag { font-size: 9px; color: var(--ash); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
 
   nav { flex: 1; padding: 16px 0; overflow-y: auto; }
 
-  .nav-section {
-    padding: 0 20px 6px;
-    font-size: 8.5px;
-    color: var(--ash);
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    margin-top: 16px;
-  }
-
+  .nav-section { padding: 0 20px 6px; font-size: 8.5px; color: var(--ash); letter-spacing: 2.5px; text-transform: uppercase; margin-top: 16px; }
   .nav-section:first-child { margin-top: 0; }
 
   .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 20px;
-    cursor: pointer;
-    color: var(--ash);
-    font-size: 11px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px; cursor: pointer; color: var(--ash);
+    font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase;
     transition: color 0.15s, background 0.15s;
     border-left: 2px solid transparent;
     font-family: 'DM Mono', monospace;
-    position: relative;
-    user-select: none;
+    position: relative; user-select: none;
   }
-
   .nav-item:hover { color: var(--chalk-80); background: var(--chalk-05); }
-
-  .nav-item.active {
-    color: var(--chalk);
-    border-left: 2px solid var(--red);
-    background: var(--red-dim);
-  }
-
+  .nav-item.active { color: var(--chalk); border-left: 2px solid var(--red); background: var(--red-dim); }
   .nav-item.active .nav-icon-wrap { color: var(--red); }
-
   .nav-item.disabled { opacity: 0.28; cursor: default; pointer-events: none; }
 
-  .nav-icon-wrap {
-    width: 16px;
-    height: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: color 0.15s;
-  }
+  .nav-icon-wrap { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: color 0.15s; }
+  .nav-badge { margin-left: auto; background: var(--red); color: white; font-size: 8px; padding: 1px 5px; border-radius: 2px; font-weight: 500; }
 
-  .nav-badge {
-    margin-left: auto;
-    background: var(--red);
-    color: white;
-    font-size: 8px;
-    padding: 1px 5px;
-    border-radius: 2px;
-    font-weight: 500;
-  }
+  .sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .brand-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--red-mid); border: 1px solid rgba(232,0,45,0.3); color: var(--red); font-size: 9px; letter-spacing: 1.5px; padding: 4px 8px; border-radius: 2px; text-transform: uppercase; }
+  .brand-dot { width: 5px; height: 5px; background: var(--red); border-radius: 50%; animation: pulse-dot 2s infinite; }
 
-  .sidebar-footer {
-    padding: 14px 20px;
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .brand-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--red-mid);
-    border: 1px solid rgba(232,0,45,0.3);
-    color: var(--red);
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    padding: 4px 8px;
-    border-radius: 2px;
-    text-transform: uppercase;
-  }
-
-  .brand-dot {
-    width: 5px; height: 5px;
-    background: var(--red);
-    border-radius: 50%;
-    animation: pulse-dot 2s infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+  @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .ops-info { margin-top: 8px; }
   .ops-label { font-size: 9px; color: var(--ash); letter-spacing: 1px; }
   .ops-name { font-size: 11px; color: var(--chalk); margin-top: 2px; letter-spacing: 0.5px; }
-  .ops-contact {
-    display: inline-block;
-    margin-top: 6px;
-    font-size: 9px;
-    color: var(--blue);
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
+  .ops-contact { display: inline-block; margin-top: 6px; font-size: 9px; color: var(--blue); letter-spacing: 0.5px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 
   /* ─── MAIN ─────────────────────────────────────────────────────────────────── */
-  #main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    background: var(--void);
-  }
+  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--void); }
 
   /* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
-  .topbar {
-    height: 54px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    background: var(--carbon);
-    flex-shrink: 0;
-    gap: 16px;
-  }
-
+  .topbar { height: 54px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: var(--carbon); flex-shrink: 0; gap: 16px; }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
-
-  .page-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 3px;
-    color: var(--chalk);
-  }
-
-  .breadcrumb {
-    font-size: 10px;
-    color: var(--ash);
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 1px;
-  }
-
+  .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--chalk); }
+  .breadcrumb { font-size: 10px; color: var(--ash); letter-spacing: 1px; display: flex; align-items: center; gap: 6px; margin-top: 1px; }
   .breadcrumb span { color: var(--chalk-40); }
+  .topbar-right { display: flex; align-items: center; gap: 20px; margin-left: auto; }
+  .live-indicator { display: flex; align-items: center; gap: 7px; font-size: 9.5px; color: var(--green); letter-spacing: 2px; text-transform: uppercase; }
+  .live-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: live-pulse 1.8s infinite; }
 
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-left: auto;
-  }
+  @keyframes live-pulse { 0% { box-shadow: 0 0 0 0 rgba(0,209,102,0.5); } 70% { box-shadow: 0 0 0 5px rgba(0,209,102,0); } 100% { box-shadow: 0 0 0 0 rgba(0,209,102,0); } }
 
-  .live-indicator {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 9.5px;
-    color: var(--green);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .live-dot {
-    width: 7px; height: 7px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: live-pulse 1.8s infinite;
-  }
-
-  @keyframes live-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(0,209,102,0.5); }
-    70% { box-shadow: 0 0 0 5px rgba(0,209,102,0); }
-    100% { box-shadow: 0 0 0 0 rgba(0,209,102,0); }
-  }
-
-  .topbar-clock {
-    font-size: 11px;
-    color: var(--chalk-40);
-    letter-spacing: 1px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .topbar-divider {
-    width: 1px;
-    height: 20px;
-    background: var(--border2);
-  }
-
-  .integration-tag {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 9px;
-    color: var(--ash);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 4px 9px;
-    border: 1px solid var(--border2);
-    border-radius: 2px;
-  }
-
+  .topbar-clock { font-size: 11px; color: var(--chalk-40); letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+  .topbar-divider { width: 1px; height: 20px; background: var(--border2); }
+  .integration-tag { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--ash); letter-spacing: 1px; text-transform: uppercase; padding: 4px 9px; border: 1px solid var(--border2); border-radius: 2px; }
   .integration-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; }
 
   /* ─── PAGE CONTENT ────────────────────────────────────────────────────────── */
-  #page-content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 22px 28px 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--ash2) transparent;
-  }
-
+  #page-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 22px 28px 32px; display: flex; flex-direction: column; gap: 18px; scrollbar-width: thin; scrollbar-color: var(--ash2) transparent; }
   #page-content::-webkit-scrollbar { width: 4px; }
   #page-content::-webkit-scrollbar-thumb { background: var(--ash2); border-radius: 2px; }
 
   /* ─── KPI STRIP ───────────────────────────────────────────────────────────── */
-  .kpi-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .kpi-card {
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 16px 18px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-
+  .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .kpi-card { background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; padding: 16px 18px; position: relative; overflow: hidden; transition: border-color 0.2s; }
   .kpi-card:hover { border-color: var(--border3); }
-
-  .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 1px;
-    background: linear-gradient(90deg, var(--red), transparent);
-    opacity: 0.6;
-  }
-
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, var(--red), transparent); opacity: 0.6; }
   .kpi-card.green-accent::before { background: linear-gradient(90deg, var(--green), transparent); }
   .kpi-card.amber-accent::before { background: linear-gradient(90deg, var(--amber), transparent); }
   .kpi-card.blue-accent::before { background: linear-gradient(90deg, var(--blue), transparent); }
-
-  .kpi-label {
-    font-size: 9px;
-    color: var(--ash);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .kpi-number {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 40px;
-    line-height: 1;
-    color: var(--chalk);
-    letter-spacing: 1px;
-    font-variant-numeric: tabular-nums;
-    transition: color 0.3s;
-  }
-
-  .kpi-number .unit {
-    font-size: 20px;
-    color: var(--ash);
-    letter-spacing: 2px;
-  }
-
+  .kpi-label { font-size: 9px; color: var(--ash); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .kpi-number { font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: 1; color: var(--chalk); letter-spacing: 1px; font-variant-numeric: tabular-nums; transition: color 0.3s; }
+  .kpi-number .unit { font-size: 20px; color: var(--ash); letter-spacing: 2px; }
   .kpi-number.flash-red { animation: kpi-flash-red 0.5s ease; }
   .kpi-number.flash-green { animation: kpi-flash-green 0.5s ease; }
-
-  @keyframes kpi-flash-red {
-    0% { color: var(--red); }
-    100% { color: var(--chalk); }
-  }
-
-  @keyframes kpi-flash-green {
-    0% { color: var(--green); }
-    100% { color: var(--chalk); }
-  }
-
-  .kpi-sub {
-    font-size: 9px;
-    color: var(--ash);
-    margin-top: 6px;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .kpi-delta {
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 2px;
-  }
-
+  @keyframes kpi-flash-red { 0% { color: var(--red); } 100% { color: var(--chalk); } }
+  @keyframes kpi-flash-green { 0% { color: var(--green); } 100% { color: var(--chalk); } }
+  .kpi-sub { font-size: 9px; color: var(--ash); margin-top: 6px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+  .kpi-delta { font-size: 9px; padding: 1px 5px; border-radius: 2px; }
   .kpi-delta.up { color: var(--green); background: var(--green-dim); }
   .kpi-delta.down { color: var(--red); background: var(--red-dim); }
   .kpi-delta.warn { color: var(--amber); background: var(--amber-dim); }
 
   /* ─── FILTER & SEARCH ─────────────────────────────────────────────────────── */
-  .controls-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .filter-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 4px 5px;
-  }
-
-  .pill-btn {
-    padding: 5px 12px;
-    border-radius: 2px;
-    border: none;
-    background: transparent;
-    color: var(--ash);
-    font-size: 9.5px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 1px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.12s;
-    white-space: nowrap;
-  }
-
+  .controls-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .filter-group { display: flex; align-items: center; gap: 6px; background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; padding: 4px 5px; }
+  .pill-btn { padding: 5px 12px; border-radius: 2px; border: none; background: transparent; color: var(--ash); font-size: 9.5px; font-family: 'DM Mono', monospace; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; transition: all 0.12s; white-space: nowrap; }
   .pill-btn:hover { background: var(--chalk-05); color: var(--chalk-80); }
-
-  .pill-btn.active {
-    background: var(--red);
-    color: #fff;
-  }
-
+  .pill-btn.active { background: var(--red); color: #fff; }
   .pill-btn.s-processing.active { background: var(--blue); }
   .pill-btn.s-dispatched.active { background: var(--amber); color: #000; }
   .pill-btn.s-out.active { background: var(--red); }
   .pill-btn.s-delivered.active { background: var(--green); color: #000; }
   .pill-btn.s-delayed.active { background: var(--ash2); color: var(--chalk); }
-
-  .count-tag {
-    font-size: 8px;
-    background: var(--chalk-10);
-    color: var(--chalk-40);
-    padding: 1px 5px;
-    border-radius: 2px;
-    margin-left: 2px;
-  }
-
+  .count-tag { font-size: 8px; background: var(--chalk-10); color: var(--chalk-40); padding: 1px 5px; border-radius: 2px; margin-left: 2px; }
   .controls-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-
-  .search-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 6px 12px;
-    transition: border-color 0.15s;
-  }
-
+  .search-box { display: flex; align-items: center; gap: 8px; background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; padding: 6px 12px; transition: border-color 0.15s; }
   .search-box:focus-within { border-color: var(--border3); }
-
   .search-box svg { color: var(--ash); flex-shrink: 0; }
-
-  .search-box input {
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--chalk);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    width: 180px;
-    letter-spacing: 0.5px;
-  }
-
+  .search-box input { background: transparent; border: none; outline: none; color: var(--chalk); font-family: 'DM Mono', monospace; font-size: 11px; width: 180px; letter-spacing: 0.5px; }
   .search-box input::placeholder { color: var(--ash); }
-
-  .sort-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 10px;
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    color: var(--ash);
-    font-size: 10px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-
+  .sort-btn { display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; color: var(--ash); font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; cursor: pointer; transition: all 0.12s; }
   .sort-btn:hover { border-color: var(--border3); color: var(--chalk); }
 
   /* ─── TABLE ───────────────────────────────────────────────────────────────── */
-  .table-container {
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .table-header-row {
-    display: grid;
-    grid-template-columns: 110px 140px 85px 1fr 140px 80px 85px 85px 60px;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    background: var(--carbon2);
-    gap: 4px;
-  }
-
-  .th {
-    font-size: 8.5px;
-    color: var(--ash);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    user-select: none;
-    transition: color 0.12s;
-  }
-
+  .table-container { background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; flex: 1; display: flex; flex-direction: column; }
+  .table-header-row { display: grid; grid-template-columns: 110px 140px 85px 1fr 140px 80px 85px 85px 60px; padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--carbon2); gap: 4px; }
+  .th { font-size: 8.5px; color: var(--ash); letter-spacing: 2px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 4px; user-select: none; transition: color 0.12s; }
   .th:hover { color: var(--chalk-80); }
-
   .table-body { flex: 1; overflow-y: auto; }
   .table-body::-webkit-scrollbar { width: 3px; }
   .table-body::-webkit-scrollbar-thumb { background: var(--ash2); }
-
-  .order-row {
-    display: grid;
-    grid-template-columns: 110px 140px 85px 1fr 140px 80px 85px 85px 60px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background 0.1s;
-    align-items: center;
-    gap: 4px;
-    position: relative;
-    border-left: 3px solid transparent;
-  }
-
+  .order-row { display: grid; grid-template-columns: 110px 140px 85px 1fr 140px 80px 85px 85px 60px; padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; align-items: center; gap: 4px; position: relative; border-left: 3px solid transparent; }
   .order-row:last-child { border-bottom: none; }
-
   .order-row:hover { background: var(--chalk-05); }
-
-  .order-row.sla-risk {
-    background: rgba(245,158,11,0.03);
-    border-left: 3px solid rgba(245,158,11,0.4);
-  }
-
-  .order-row.sla-fail {
-    background: rgba(232,0,45,0.03);
-    border-left: 3px solid rgba(232,0,45,0.3);
-  }
-
-  .order-row.row-updated {
-    animation: row-flash 0.7s ease forwards;
-  }
-
-  @keyframes row-flash {
-    0% { background: rgba(232,0,45,0.1); border-left-color: var(--red); }
-    100% { background: transparent; border-left-color: transparent; }
-  }
-
-  .cell {
-    font-size: 11px;
-    color: var(--chalk);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding-right: 8px;
-  }
-
+  .order-row.sla-risk { background: rgba(245,158,11,0.03); border-left: 3px solid rgba(245,158,11,0.4); }
+  .order-row.sla-fail { background: rgba(232,0,45,0.03); border-left: 3px solid rgba(232,0,45,0.3); }
+  .order-row.row-updated { animation: row-flash 0.7s ease forwards; }
+  @keyframes row-flash { 0% { background: rgba(232,0,45,0.1); border-left-color: var(--red); } 100% { background: transparent; border-left-color: transparent; } }
+  .cell { font-size: 11px; color: var(--chalk); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
   .cell.dim { color: var(--chalk-40); }
   .cell.mono { font-variant-numeric: tabular-nums; }
-
-  .order-id-cell {
-    font-size: 10px;
-    color: var(--red);
-    letter-spacing: 0.8px;
-    font-weight: 500;
-  }
-
-  .city-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    color: var(--chalk-80);
-  }
+  .order-id-cell { font-size: 10px; color: var(--red); letter-spacing: 0.8px; font-weight: 500; }
+  .city-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--chalk-80); }
 
   /* STATUS BADGES */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px 3px 6px;
-    border-radius: 2px;
-    font-size: 9px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px 3px 6px; border-radius: 2px; font-size: 9px; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 500; white-space: nowrap; }
   .badge-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
-
   .badge.processing { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,139,235,0.2); }
   .badge.processing .badge-dot { background: var(--blue); }
   .badge.dispatched { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
@@ -665,171 +263,34 @@
   .sla-tag.ok { color: var(--green); }
   .sla-tag.risk { color: var(--amber); }
   .sla-tag.fail { color: var(--red); }
-
-  .sla-bar {
-    width: 36px;
-    height: 3px;
-    background: var(--carbon3);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .sla-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.3s;
-  }
-
+  .sla-bar { width: 36px; height: 3px; background: var(--carbon3); border-radius: 2px; overflow: hidden; }
+  .sla-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
   .sla-fill.ok { background: var(--green); }
   .sla-fill.risk { background: var(--amber); }
   .sla-fill.fail { background: var(--red); }
-
-  .action-btn {
-    width: 26px; height: 26px;
-    border-radius: 2px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--ash);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.12s;
-    margin-left: auto;
-  }
-
+  .action-btn { width: 26px; height: 26px; border-radius: 2px; border: 1px solid var(--border); background: transparent; color: var(--ash); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; margin-left: auto; }
   .action-btn:hover { border-color: var(--border3); color: var(--chalk); background: var(--chalk-05); }
-
-  .table-empty {
-    padding: 64px 28px;
-    text-align: center;
-    color: var(--ash);
-    font-size: 11px;
-    letter-spacing: 1px;
-  }
-
+  .table-empty { padding: 64px 28px; text-align: center; color: var(--ash); font-size: 11px; letter-spacing: 1px; }
   .table-empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.3; }
 
   /* ─── DETAIL PANEL ──────────────────────────────────────────────────────────── */
-  #overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.65);
-    z-index: 200;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
-  }
-
+  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
   #overlay.open { opacity: 1; pointer-events: all; }
-
-  #detail-panel {
-    position: fixed;
-    top: 0; right: 0;
-    width: 440px;
-    height: 100vh;
-    background: var(--carbon);
-    border-left: 1px solid var(--border2);
-    z-index: 201;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
-    overflow: hidden;
-  }
-
+  #detail-panel { position: fixed; top: 0; right: 0; width: 440px; height: 100vh; background: var(--carbon); border-left: 1px solid var(--border2); z-index: 201; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.4,0,0.2,1); overflow: hidden; }
   #detail-panel.open { transform: translateX(0); }
-
-  .panel-topbar {
-    padding: 16px 20px 14px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-shrink: 0;
-    background: var(--carbon2);
-  }
-
-  .panel-oid {
-    font-size: 9px;
-    color: var(--red);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .panel-customer {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    letter-spacing: 1.5px;
-    color: var(--chalk);
-    line-height: 1.1;
-  }
-
-  .panel-sku {
-    font-size: 10px;
-    color: var(--ash);
-    margin-top: 3px;
-    letter-spacing: 0.5px;
-  }
-
-  .close-btn {
-    width: 30px; height: 30px;
-    border-radius: 2px;
-    border: 1px solid var(--border2);
-    background: transparent;
-    color: var(--chalk-40);
-    cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    font-family: 'DM Mono', monospace;
-    flex-shrink: 0;
-  }
-
+  .panel-topbar { padding: 16px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; flex-shrink: 0; background: var(--carbon2); }
+  .panel-oid { font-size: 9px; color: var(--red); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .panel-customer { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.5px; color: var(--chalk); line-height: 1.1; }
+  .panel-sku { font-size: 10px; color: var(--ash); margin-top: 3px; letter-spacing: 0.5px; }
+  .close-btn { width: 30px; height: 30px; border-radius: 2px; border: 1px solid var(--border2); background: transparent; color: var(--chalk-40); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-family: 'DM Mono', monospace; flex-shrink: 0; }
   .close-btn:hover { border-color: var(--chalk-20); color: var(--chalk); }
-
-  .panel-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--ash2) transparent;
-  }
-
+  .panel-content { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: thin; scrollbar-color: var(--ash2) transparent; }
   .panel-content::-webkit-scrollbar { width: 3px; }
   .panel-content::-webkit-scrollbar-thumb { background: var(--ash2); }
-
   .panel-section { margin-bottom: 22px; }
-
-  .panel-section-title {
-    font-size: 8.5px;
-    color: var(--ash);
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .panel-meta-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .meta-item {
-    background: var(--carbon2);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 10px 12px;
-  }
-
+  .panel-section-title { font-size: 8.5px; color: var(--ash); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .panel-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .meta-item { background: var(--carbon2); border: 1px solid var(--border); border-radius: 3px; padding: 10px 12px; }
   .meta-label { font-size: 8.5px; color: var(--ash); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
   .meta-value { font-size: 12px; color: var(--chalk); letter-spacing: 0.3px; }
   .meta-value.highlight { color: var(--red); }
@@ -838,66 +299,18 @@
 
   /* STEPPER */
   .stepper { display: flex; flex-direction: column; }
-
-  .step {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    position: relative;
-    padding-bottom: 18px;
-  }
-
+  .step { display: flex; align-items: flex-start; gap: 14px; position: relative; padding-bottom: 18px; }
   .step:last-child { padding-bottom: 0; }
-
-  .step-track {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-    padding-top: 2px;
-  }
-
-  .step-node {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-
+  .step-track { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; padding-top: 2px; }
+  .step-node { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; flex-shrink: 0; transition: all 0.2s; }
   .step-node.done { border-color: var(--green); background: rgba(0,209,102,0.1); }
   .step-node.done::after { content: ''; width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
-
-  .step-node.current {
-    border-color: var(--red);
-    background: rgba(232,0,45,0.1);
-    animation: step-pulse 2s infinite;
-  }
-
+  .step-node.current { border-color: var(--red); background: rgba(232,0,45,0.1); animation: step-pulse 2s infinite; }
   .step-node.current::after { content: ''; width: 7px; height: 7px; background: var(--red); border-radius: 50%; }
-
-  @keyframes step-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(232,0,45,0.3); }
-    50% { box-shadow: 0 0 0 5px rgba(232,0,45,0); }
-  }
-
-  .step-connector {
-    width: 1px;
-    flex: 1;
-    background: var(--border);
-    min-height: 14px;
-    margin-top: 3px;
-  }
-
+  @keyframes step-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(232,0,45,0.3); } 50% { box-shadow: 0 0 0 5px rgba(232,0,45,0); } }
+  .step-connector { width: 1px; flex: 1; background: var(--border); min-height: 14px; margin-top: 3px; }
   .step-connector.done { background: rgba(0,209,102,0.3); }
-
   .step:last-child .step-connector { display: none; }
-
   .step-body { padding-top: 2px; }
   .step-name { font-size: 11px; color: var(--chalk); letter-spacing: 0.3px; }
   .step-name.pending { color: var(--ash); }
@@ -905,190 +318,51 @@
   .step-time.active { color: var(--red); }
 
   /* SLA GAUGE */
-  .sla-gauge-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--carbon2);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 12px 14px;
-  }
-
-  .gauge-track {
-    flex: 1;
-    height: 4px;
-    background: var(--carbon3);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .gauge-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.5s ease;
-  }
-
+  .sla-gauge-wrap { display: flex; align-items: center; gap: 10px; background: var(--carbon2); border: 1px solid var(--border); border-radius: 3px; padding: 12px 14px; }
+  .gauge-track { flex: 1; height: 4px; background: var(--carbon3); border-radius: 2px; overflow: hidden; }
+  .gauge-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
   .gauge-label { font-size: 10px; white-space: nowrap; }
 
   /* ─── PANEL FOOTER ──────────────────────────────────────────────────────────── */
-  .panel-footer {
-    padding: 14px 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-    background: var(--carbon2);
-  }
-
-  .action-primary {
-    flex: 1;
-    padding: 9px;
-    background: var(--red);
-    border: none;
-    border-radius: 2px;
-    color: #fff;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
+  .panel-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; background: var(--carbon2); }
+  .action-primary { flex: 1; padding: 9px; background: var(--red); border: none; border-radius: 2px; color: #fff; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s; }
   .action-primary:hover { opacity: 0.85; }
-
-  .action-secondary {
-    padding: 9px 14px;
-    background: transparent;
-    border: 1px solid var(--border2);
-    border-radius: 2px;
-    color: var(--chalk-80);
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
+  .action-secondary { padding: 9px 14px; background: transparent; border: 1px solid var(--border2); border-radius: 2px; color: var(--chalk-80); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.15s; }
   .action-secondary:hover { border-color: var(--border3); color: var(--chalk); }
 
   /* ─── SHELL PAGES ─────────────────────────────────────────────────────────── */
-  .shell-header {
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 28px 28px 24px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .shell-header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--red-dim) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .shell-page-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 36px;
-    letter-spacing: 3px;
-    color: var(--chalk);
-    line-height: 1;
-  }
-
-  .shell-page-sub {
-    font-size: 10px;
-    color: var(--ash);
-    letter-spacing: 1.5px;
-    margin-top: 6px;
-  }
-
-  .coming-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--red-mid);
-    border: 1px solid rgba(232,0,45,0.3);
-    color: var(--red);
-    font-size: 9px;
-    letter-spacing: 2px;
-    padding: 5px 10px;
-    border-radius: 2px;
-    text-transform: uppercase;
-  }
-
-  .shell-kpi-row {
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    gap: 12px;
-  }
-
-  .shell-kpi {
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 16px 18px;
-    opacity: 0.55;
-  }
-
+  .shell-header { background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; padding: 28px 28px 24px; display: flex; align-items: flex-end; justify-content: space-between; position: relative; overflow: hidden; }
+  .shell-header::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--red-dim) 0%, transparent 60%); pointer-events: none; }
+  .shell-page-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 3px; color: var(--chalk); line-height: 1; }
+  .shell-page-sub { font-size: 10px; color: var(--ash); letter-spacing: 1.5px; margin-top: 6px; }
+  .coming-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--red-mid); border: 1px solid rgba(232,0,45,0.3); color: var(--red); font-size: 9px; letter-spacing: 2px; padding: 5px 10px; border-radius: 2px; text-transform: uppercase; }
+  .shell-kpi-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .shell-kpi { background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; padding: 16px 18px; opacity: 0.55; }
   .shell-kpi-label { font-size: 9px; color: var(--ash); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
   .shell-kpi-value { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--chalk); }
-
-  .shell-table {
-    background: var(--carbon);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-    opacity: 0.6;
-  }
-
-  .shell-table-head {
-    display: flex;
-    gap: 32px;
-    padding: 10px 18px;
-    background: var(--carbon2);
-    border-bottom: 1px solid var(--border);
-  }
-
+  .shell-table { background: var(--carbon); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; opacity: 0.6; }
+  .shell-table-head { display: flex; gap: 32px; padding: 10px 18px; background: var(--carbon2); border-bottom: 1px solid var(--border); }
   .shell-th { font-size: 8.5px; color: var(--ash); letter-spacing: 2px; text-transform: uppercase; min-width: 80px; }
-
-  .shell-row {
-    display: flex;
-    gap: 32px;
-    padding: 11px 18px;
-    border-bottom: 1px solid var(--border);
-    opacity: 0.4;
-  }
-
+  .shell-row { display: flex; gap: 32px; padding: 11px 18px; border-bottom: 1px solid var(--border); opacity: 0.4; }
   .shell-row:last-child { border-bottom: none; }
   .shell-cell { font-size: 11px; color: var(--chalk); min-width: 80px; }
+  .shell-footer-note { text-align: center; padding: 14px; font-size: 9px; color: var(--ash); letter-spacing: 2px; text-transform: uppercase; border-top: 1px solid var(--border); }
 
-  .shell-footer-note {
-    text-align: center;
-    padding: 14px;
-    font-size: 9px;
-    color: var(--ash);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-top: 1px solid var(--border);
-  }
-
-  /* ─── SCROLLBAR ─────────────────────────────────────────────────────────────── */
   * { scrollbar-width: thin; scrollbar-color: var(--ash2) transparent; }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════ ROLE SWITCHER ═══════════════════ -->
+<div id="role-switcher">
+  <button class="role-tab active" onclick="switchRole('founder', this)">D2C Founder</button>
+  <button class="role-tab" onclick="switchRole('customer', this)">Customer</button>
+  <button class="role-tab" onclick="switchRole('admin', this)">Admin</button>
+</div>
+
+<!-- ═══════════════════ FOUNDER VIEW (existing) ═══════════════════ -->
 <div id="app">
 
-  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
   <div id="sidebar">
     <div class="logo-zone">
       <div class="logo-mark">
@@ -1100,7 +374,6 @@
 
     <nav>
       <div class="nav-section">Operations</div>
-
       <div class="nav-item active" data-page="tracking" onclick="setPage('tracking', this)">
         <div class="nav-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1114,7 +387,6 @@
         Package Tracking
         <span class="nav-badge" id="nav-active-count">7</span>
       </div>
-
       <div class="nav-item" data-page="inventory" onclick="setPage('inventory', this)">
         <div class="nav-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1125,7 +397,6 @@
         </div>
         Inventory
       </div>
-
       <div class="nav-item" data-page="returns" onclick="setPage('returns', this)">
         <div class="nav-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1136,9 +407,7 @@
         </div>
         Returns &amp; RTO
       </div>
-
       <div class="nav-section">Analytics</div>
-
       <div class="nav-item" data-page="revenue" onclick="setPage('revenue', this)">
         <div class="nav-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1148,7 +417,6 @@
         </div>
         Revenue &amp; Financials
       </div>
-
       <div class="nav-item disabled">
         <div class="nav-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1158,7 +426,6 @@
         </div>
         SLA Analytics
       </div>
-
       <div class="nav-item disabled">
         <div class="nav-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1168,7 +435,6 @@
         </div>
         Post-Mortems
       </div>
-
       <div class="nav-item disabled">
         <div class="nav-icon-wrap">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1181,10 +447,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <div class="brand-pill">
-        <div class="brand-dot"></div>
-        GlowCraft Co.
-      </div>
+      <div class="brand-pill"><div class="brand-dot"></div>GlowCraft Co.</div>
       <div class="ops-info">
         <div class="ops-label">Fulfillment Manager</div>
         <div class="ops-name">Priya Mehta</div>
@@ -1193,39 +456,24 @@
     </div>
   </div>
 
-  <!-- ═══════════════════ MAIN ═══════════════════ -->
   <div id="main">
-
-    <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-left">
-        <div>
-          <div class="page-title" id="page-title-text">Package Tracking</div>
-        </div>
+        <div><div class="page-title" id="page-title-text">Package Tracking</div></div>
       </div>
       <div class="topbar-right">
-        <div class="integration-tag">
-          <div class="integration-dot"></div>
-          Shopify · Connected
-        </div>
+        <div class="integration-tag"><div class="integration-dot"></div>Shopify · Connected</div>
         <div class="topbar-divider"></div>
-        <div class="live-indicator">
-          <div class="live-dot"></div>
-          Live feed
-        </div>
+        <div class="live-indicator"><div class="live-dot"></div>Live feed</div>
         <div class="topbar-divider"></div>
         <div class="topbar-clock" id="clock">--:--:-- IST</div>
       </div>
     </div>
-
-    <!-- PAGE -->
     <div id="page-content"></div>
   </div>
 </div>
 
-<!-- ═══════════════════ DETAIL PANEL ═══════════════════ -->
 <div id="overlay" onclick="closePanel()"></div>
-
 <div id="detail-panel">
   <div class="panel-topbar">
     <div>
@@ -1242,6 +490,377 @@
     <button class="action-secondary">Export</button>
   </div>
 </div>
+
+<!-- ═══════════════════ CUSTOMER VIEW ═══════════════════ -->
+<div id="customer-view" style="font-family:system-ui;background:#F8F9FB;min-height:100vh;">
+
+  <!-- Product Page -->
+  <div id="cust-product-page" style="max-width:860px;margin:0 auto;padding:32px 24px;">
+    <div style="margin-bottom:28px;">
+      <div style="font-size:20px;font-weight:600;color:#111;letter-spacing:-0.3px;">GlowCraft Co.</div>
+      <div style="font-size:13px;color:#888;margin-top:3px;">Premium skincare, delivered fast</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
+        <div style="height:110px;background:#FDE8D8;border-radius:8px;margin-bottom:14px;"></div>
+        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Glow Serum 30ml</div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹899</div>
+        <button onclick="openOrderModal('Glow Serum 30ml','₹899')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+      </div>
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
+        <div style="height:110px;background:#D8E8FD;border-radius:8px;margin-bottom:14px;"></div>
+        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Night Cream 50ml</div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹1199</div>
+        <button onclick="openOrderModal('Night Cream 50ml','₹1199')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+      </div>
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
+        <div style="height:110px;background:#D8FDE8;border-radius:8px;margin-bottom:14px;"></div>
+        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Sunscreen SPF50</div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹649</div>
+        <button onclick="openOrderModal('Sunscreen SPF50','₹649')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+      </div>
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
+        <div style="height:110px;background:#F5D8FD;border-radius:8px;margin-bottom:14px;"></div>
+        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Vitamin C Face Wash</div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹449</div>
+        <button onclick="openOrderModal('Vitamin C Face Wash','₹449')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracking Page -->
+  <div id="cust-tracking-page" style="display:none;max-width:860px;margin:0 auto;padding:32px 24px;">
+    <button onclick="showProductPage()" style="background:none;border:none;color:#4A6CF7;font-size:13px;cursor:pointer;margin-bottom:20px;padding:0;">← Back to products</button>
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:18px 20px;margin-bottom:16px;">
+      <div style="font-size:12px;color:#888;margin-bottom:2px;">GlowCraft Co.</div>
+      <div style="font-size:15px;font-weight:600;color:#111;">Order #WS-4829 <span style="font-size:11px;font-weight:400;color:#888;" id="order-placed-time"></span></div>
+    </div>
+
+    <!-- Route tracker -->
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:28px 20px;margin-bottom:16px;overflow:hidden;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;position:relative;">
+        <div style="position:absolute;top:18px;left:calc(12.5% + 18px);right:calc(12.5% + 18px);height:2px;background:#e5e7eb;z-index:0;"></div>
+        <div style="position:absolute;top:18px;left:calc(12.5% + 18px);width:calc(50% - 18px);height:2px;background:#4A6CF7;z-index:1;"></div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#4A6CF7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">✓</div>
+          <div style="font-size:11px;font-weight:500;color:#4A6CF7;text-align:center;">Order Placed</div>
+          <div style="font-size:10px;color:#999;text-align:center;">10:00 AM</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#4A6CF7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">✓</div>
+          <div style="font-size:11px;font-weight:500;color:#4A6CF7;text-align:center;">Packed &amp; Dispatched</div>
+          <div style="font-size:10px;color:#999;text-align:center;">11:30 AM</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;animation:pulse-amber 2s infinite;">3</div>
+          <div style="font-size:11px;font-weight:500;color:#f59e0b;text-align:center;">On the Way</div>
+          <div style="font-size:10px;color:#999;text-align:center;">1:15 PM (NOW)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:12px;font-weight:700;">4</div>
+          <div style="font-size:11px;font-weight:500;color:#aaa;text-align:center;">Delivered</div>
+          <div style="font-size:10px;color:#999;text-align:center;">Est. 3:45 PM</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tracking-map" style="height:240px;border-radius:12px;overflow:hidden;margin-bottom:16px;border:0.5px solid rgba(0,0,0,0.08);"></div>
+
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
+      <div style="width:42px;height:42px;border-radius:50%;background:#4A6CF7;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px;flex-shrink:0;">RM</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;color:#111;">Rajan Mehta</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">Delivery Agent · WhipShip verified · ⭐ 4.8 · 2-wheeler</div>
+      </div>
+      <button style="padding:8px 16px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;cursor:pointer;font-weight:500;">Call Agent</button>
+    </div>
+  </div>
+
+  <!-- Order Modal -->
+  <div id="order-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10001;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:28px;width:380px;max-width:90vw;">
+      <div style="font-size:17px;font-weight:600;color:#111;margin-bottom:20px;">Complete your order</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <input id="o-name" placeholder="Full name" style="padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;">
+        <input id="o-address" placeholder="Delivery address" style="padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;">
+        <input id="o-product" placeholder="Product" readonly style="padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;background:#f9f9f9;color:#555;outline:none;font-family:system-ui;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:13px;color:#555;">Qty:</label>
+          <input type="number" id="o-qty" value="1" min="1" style="width:70px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button onclick="confirmOrder()" style="flex:1;padding:11px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Confirm Order</button>
+        <button onclick="document.getElementById('order-modal').style.display='none'" style="padding:11px 16px;border:1px solid #e5e7eb;background:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:system-ui;">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADMIN VIEW ═══════════════════ -->
+<div id="admin-view" style="font-family:system-ui;background:#F8F9FB;min-height:100vh;overflow-y:auto;height:100vh;">
+  <div style="max-width:1100px;margin:0 auto;padding:32px 24px;display:flex;flex-direction:column;gap:24px;">
+
+    <!-- QA Overview -->
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;">
+      <div style="font-size:16px;font-weight:600;color:#111;margin-bottom:4px;">QA Overview</div>
+      <div style="font-size:12px;color:#888;margin-bottom:18px;">28 clients · 38,420 orders this month · Avg satisfaction 4.3/5</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+        <div style="background:#F1F3F9;border-radius:8px;padding:14px 16px;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">On-time Delivery</div>
+          <div style="font-size:22px;font-weight:600;color:#22c55e;">96.4%</div>
+          <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:8px;"><div style="height:100%;width:96.4%;background:#22c55e;border-radius:2px;"></div></div>
+        </div>
+        <div style="background:#F1F3F9;border-radius:8px;padding:14px 16px;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">Packaging Accuracy</div>
+          <div style="font-size:22px;font-weight:600;color:#4A6CF7;">98.1%</div>
+          <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:8px;"><div style="height:100%;width:98.1%;background:#4A6CF7;border-radius:2px;"></div></div>
+        </div>
+        <div style="background:#F1F3F9;border-radius:8px;padding:14px 16px;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">Returns &le;24h</div>
+          <div style="font-size:22px;font-weight:600;color:#f59e0b;">91.2%</div>
+          <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:8px;"><div style="height:100%;width:91.2%;background:#f59e0b;border-radius:2px;"></div></div>
+        </div>
+        <div style="background:#F1F3F9;border-radius:8px;padding:14px 16px;">
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">Checkpoint Compliance</div>
+          <div style="font-size:22px;font-weight:600;color:#22c55e;">99.3%</div>
+          <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:8px;"><div style="height:100%;width:99.3%;background:#22c55e;border-radius:2px;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Frontline Feedback -->
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;">
+      <div style="font-size:16px;font-weight:600;color:#111;margin-bottom:18px;">Frontline Feedback</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div onclick="openFeedback(0)" style="border-left:3px solid #ef4444;background:#fafafa;border-radius:0 8px 8px 0;padding:14px 16px;cursor:pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+          <div style="font-size:13px;color:#111;margin-bottom:8px;">Box size S-3 too small for GlowCraft serums</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:10px;background:#F1F3F9;color:#555;padding:2px 8px;border-radius:4px;">Packaging</span>
+            <span style="font-size:10px;color:#888;">Ravi T. · 2 days ago</span>
+            <span style="font-size:10px;color:#ef4444;margin-left:auto;">Flagged</span>
+          </div>
+        </div>
+        <div onclick="openFeedback(1)" style="border-left:3px solid #f59e0b;background:#fafafa;border-radius:0 8px 8px 0;padding:14px 16px;cursor:pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+          <div style="font-size:13px;color:#111;margin-bottom:8px;">Route 7 traffic delays 30+ min on weekday evenings</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:10px;background:#F1F3F9;color:#555;padding:2px 8px;border-radius:4px;">Delivery</span>
+            <span style="font-size:10px;color:#888;">Neeraj K. · 5 days ago</span>
+            <span style="font-size:10px;color:#f59e0b;margin-left:auto;">Under Review</span>
+          </div>
+        </div>
+        <div onclick="openFeedback(2)" style="border-left:3px solid #4A6CF7;background:#fafafa;border-radius:0 8px 8px 0;padding:14px 16px;cursor:pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+          <div style="font-size:13px;color:#111;margin-bottom:8px;">Fragile stickers running out at Zone B</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:10px;background:#F1F3F9;color:#555;padding:2px 8px;border-radius:4px;">Warehouse</span>
+            <span style="font-size:10px;color:#888;">Deepa M. · Today</span>
+            <span style="font-size:10px;color:#4A6CF7;margin-left:auto;">Acknowledged</span>
+          </div>
+        </div>
+        <div onclick="openFeedback(3)" style="border-left:3px solid #22c55e;background:#fafafa;border-radius:0 8px 8px 0;padding:14px 16px;cursor:pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+          <div style="font-size:13px;color:#111;margin-bottom:8px;">Weighing scale at packing station 3 incorrect</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:10px;background:#F1F3F9;color:#555;padding:2px 8px;border-radius:4px;">Packaging</span>
+            <span style="font-size:10px;color:#888;">Kavya R. · 3 days ago</span>
+            <span style="font-size:10px;color:#22c55e;margin-left:auto;">Resolved</span>
+          </div>
+        </div>
+        <div onclick="openFeedback(4)" style="border-left:3px solid #f59e0b;background:#fafafa;border-radius:0 8px 8px 0;padding:14px 16px;cursor:pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+          <div style="font-size:13px;color:#111;margin-bottom:8px;">Route 4 customers not home 12–3PM</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:10px;background:#F1F3F9;color:#555;padding:2px 8px;border-radius:4px;">Delivery</span>
+            <span style="font-size:10px;color:#888;">Amar J. · 1 week ago</span>
+            <span style="font-size:10px;color:#f59e0b;margin-left:auto;">Under Review</span>
+          </div>
+        </div>
+        <div onclick="openFeedback(5)" style="border-left:3px solid #ef4444;background:#fafafa;border-radius:0 8px 8px 0;padding:14px 16px;cursor:pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+          <div style="font-size:13px;color:#111;margin-bottom:8px;">Cold storage temp fluctuating — Leafly shipments</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:10px;background:#F1F3F9;color:#555;padding:2px 8px;border-radius:4px;">Warehouse</span>
+            <span style="font-size:10px;color:#888;">Sunita B. · Yesterday</span>
+            <span style="font-size:10px;color:#ef4444;margin-left:auto;">Flagged</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Tickets -->
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <div style="font-size:16px;font-weight:600;color:#111;">D2C Founder Support</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#22c55e;">
+          <div style="width:7px;height:7px;border-radius:50%;background:#22c55e;"></div>3 team members online · 24/7
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="border:0.5px solid rgba(0,0,0,0.08);border-radius:8px;padding:16px 18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="font-size:14px;font-weight:600;color:#111;">GlowCraft Co.</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:11px;color:#888;">2h ago</span>
+              <span style="font-size:10px;font-weight:500;color:#ef4444;background:#fef2f2;padding:2px 8px;border-radius:4px;">Open</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#333;margin-bottom:6px;">3 orders marked delivered, not received</div>
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">Pooja S. · Ops Lead</div>
+          <div style="background:#F1F3F9;border-radius:6px;padding:10px 12px;font-size:12px;color:#555;border-left:2px solid #4A6CF7;">"Pulled GPS logs. RCA by 5PM."</div>
+        </div>
+        <div style="border:0.5px solid rgba(0,0,0,0.08);border-radius:8px;padding:16px 18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="font-size:14px;font-weight:600;color:#111;">BrewNest</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:11px;color:#888;">Yesterday</span>
+              <span style="font-size:10px;font-weight:500;color:#f59e0b;background:#fffbeb;padding:2px 8px;border-radius:4px;">In Progress</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#333;margin-bottom:6px;">Inventory count off by ~80 units</div>
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">Aryan M. · Warehouse Head</div>
+          <div style="background:#F1F3F9;border-radius:6px;padding:10px 12px;font-size:12px;color:#555;border-left:2px solid #4A6CF7;">"Sync delay patched."</div>
+        </div>
+        <div style="border:0.5px solid rgba(0,0,0,0.08);border-radius:8px;padding:16px 18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="font-size:14px;font-weight:600;color:#111;">ROOTS Streetwear</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:11px;color:#888;">3 days ago</span>
+              <span style="font-size:10px;font-weight:500;color:#22c55e;background:#f0fdf4;padding:2px 8px;border-radius:4px;">Resolved</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#333;margin-bottom:6px;">Payout not reflecting</div>
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">Kavya R. · Finance</div>
+          <div style="background:#F1F3F9;border-radius:6px;padding:10px 12px;font-size:12px;color:#555;border-left:2px solid #4A6CF7;">"Resolved in 4h."</div>
+        </div>
+        <div style="border:0.5px solid rgba(0,0,0,0.08);border-radius:8px;padding:16px 18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="font-size:14px;font-weight:600;color:#111;">Leafly Organics</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:11px;color:#888;">5h ago</span>
+              <span style="font-size:10px;font-weight:500;color:#ef4444;background:#fef2f2;padding:2px 8px;border-radius:4px;">Open</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#333;margin-bottom:6px;">Cold chain packaging off-spec</div>
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">Suresh P. · QA Head</div>
+          <div style="background:#F1F3F9;border-radius:6px;padding:10px 12px;font-size:12px;color:#555;border-left:2px solid #4A6CF7;">"Inspection scheduled tomorrow."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;">
+      <div style="font-size:16px;font-weight:600;color:#111;margin-bottom:18px;">Employee Leaderboard</div>
+      <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+        <div style="min-width:200px;background:#F1F3F9;border-radius:10px;padding:16px;flex-shrink:0;">
+          <div style="font-size:20px;margin-bottom:6px;">🥇</div>
+          <div style="font-size:14px;font-weight:600;color:#111;">Rajan Mehta</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Delivery</div>
+          <div style="font-size:26px;font-weight:700;color:#4A6CF7;margin-bottom:12px;">94</div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>On-time</span><span>98%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:98%;background:#4A6CF7;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Present.</span><span>90%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:90%;background:#4A6CF7;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Rating</span><span>96%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:96%;background:#4A6CF7;border-radius:2px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Punct.</span><span>92%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:92%;background:#4A6CF7;border-radius:2px;"></div></div></div>
+        </div>
+        <div style="min-width:200px;background:#F1F3F9;border-radius:10px;padding:16px;flex-shrink:0;">
+          <div style="font-size:20px;margin-bottom:6px;">🥈</div>
+          <div style="font-size:14px;font-weight:600;color:#111;">Shreya Kulkarni</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Packaging</div>
+          <div style="font-size:26px;font-weight:700;color:#22c55e;margin-bottom:12px;">88</div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Accuracy</span><span>99%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:99%;background:#22c55e;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Speed</span><span>82%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:82%;background:#22c55e;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Damage</span><span>97%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:97%;background:#22c55e;border-radius:2px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Checkpt</span><span>100%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:100%;background:#22c55e;border-radius:2px;"></div></div></div>
+        </div>
+        <div style="min-width:200px;background:#F1F3F9;border-radius:10px;padding:16px;flex-shrink:0;">
+          <div style="font-size:20px;margin-bottom:6px;">🥉</div>
+          <div style="font-size:14px;font-weight:600;color:#111;">Arjun Kumar</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Delivery</div>
+          <div style="font-size:26px;font-weight:700;color:#f59e0b;margin-bottom:12px;">86</div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>On-time</span><span>88%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:88%;background:#f59e0b;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Present.</span><span>85%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:85%;background:#f59e0b;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Rating</span><span>90%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:90%;background:#f59e0b;border-radius:2px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Punct.</span><span>82%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:82%;background:#f59e0b;border-radius:2px;"></div></div></div>
+        </div>
+        <div style="min-width:200px;background:#F1F3F9;border-radius:10px;padding:16px;flex-shrink:0;">
+          <div style="font-size:20px;margin-bottom:6px;">&nbsp;</div>
+          <div style="font-size:14px;font-weight:600;color:#111;">Vikram Sharma</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Ops</div>
+          <div style="font-size:26px;font-weight:700;color:#888;margin-bottom:12px;">79</div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Tickets</span><span>85%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:85%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Response</span><span>78%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:78%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Escal.</span><span>80%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:80%;background:#888;border-radius:2px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>SLA</span><span>72%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:72%;background:#888;border-radius:2px;"></div></div></div>
+        </div>
+        <div style="min-width:200px;background:#F1F3F9;border-radius:10px;padding:16px;flex-shrink:0;">
+          <div style="font-size:20px;margin-bottom:6px;">&nbsp;</div>
+          <div style="font-size:14px;font-weight:600;color:#111;">Deepa Menon</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Warehouse</div>
+          <div style="font-size:26px;font-weight:700;color:#888;margin-bottom:12px;">76</div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Inventory</span><span>88%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:88%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Pick Speed</span><span>74%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:74%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Damage</span><span>97%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:97%;background:#888;border-radius:2px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Punct.</span><span>78%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:78%;background:#888;border-radius:2px;"></div></div></div>
+        </div>
+        <div style="min-width:200px;background:#F1F3F9;border-radius:10px;padding:16px;flex-shrink:0;">
+          <div style="font-size:20px;margin-bottom:6px;">&nbsp;</div>
+          <div style="font-size:14px;font-weight:600;color:#111;">Neeraj Kumar</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Delivery</div>
+          <div style="font-size:26px;font-weight:700;color:#888;margin-bottom:12px;">74</div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>On-time</span><span>80%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:80%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Present.</span><span>70%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:70%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Rating</span><span>78%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:78%;background:#888;border-radius:2px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Punct.</span><span>68%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:68%;background:#888;border-radius:2px;"></div></div></div>
+        </div>
+        <div style="min-width:200px;background:#F1F3F9;border-radius:10px;padding:16px;flex-shrink:0;">
+          <div style="font-size:20px;margin-bottom:6px;">&nbsp;</div>
+          <div style="font-size:14px;font-weight:600;color:#111;">Kavya Reddy</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Ops</div>
+          <div style="font-size:26px;font-weight:700;color:#888;margin-bottom:12px;">71</div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Tickets</span><span>75%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:75%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Response</span><span>68%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:68%;background:#888;border-radius:2px;"></div></div></div>
+          <div style="margin-bottom:7px;"><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>Escal.</span><span>74%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:74%;background:#888;border-radius:2px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;"><span>SLA</span><span>66%</span></div><div style="height:3px;background:#e5e7eb;border-radius:2px;"><div style="height:100%;width:66%;background:#888;border-radius:2px;"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ FEEDBACK MODAL ═══════════════════ -->
+<div id="feedback-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10001;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:440px;max-width:90vw;font-family:system-ui;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:600;color:#111;" id="fm-title">Feedback</div>
+      <button onclick="document.getElementById('feedback-modal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888;line-height:1;">×</button>
+    </div>
+    <div id="fm-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ AI CO-PILOT ═══════════════════ -->
+<div id="ai-copilot-btn" onclick="document.getElementById('ai-copilot-modal').style.display='flex'" style="position:fixed;bottom:24px;right:24px;background:#4A6CF7;color:#fff;padding:11px 20px;border-radius:24px;font-size:12px;font-weight:500;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(74,108,247,0.4);font-family:system-ui;letter-spacing:0.3px;">AI Co-Pilot</div>
+
+<div id="ai-copilot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:520px;max-width:90vw;max-height:80vh;overflow-y:auto;font-family:system-ui;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-size:17px;font-weight:600;color:#111;">AI Co-Pilot</div>
+      <button onclick="document.getElementById('ai-copilot-modal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;">×</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button id="rca-btn" onclick="setAIMode('rca')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #4A6CF7;background:#4A6CF7;color:#fff;font-size:12px;cursor:pointer;font-family:system-ui;font-weight:500;">Generate Instant RCA</button>
+      <button id="stress-btn" onclick="setAIMode('stress')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #e5e7eb;background:none;color:#555;font-size:12px;cursor:pointer;font-family:system-ui;">Run Stress Test</button>
+    </div>
+    <textarea id="ai-input" placeholder="Describe the incident or scenario..." style="width:100%;height:90px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;resize:none;outline:none;font-family:system-ui;"></textarea>
+    <button onclick="runAI()" style="width:100%;padding:11px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:500;cursor:pointer;margin-top:10px;font-family:system-ui;">Analyze Data</button>
+    <div id="ai-output" style="margin-top:16px;display:none;"></div>
+  </div>
+</div>
+
+<style>
+@keyframes pulse-amber {
+  0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)}
+  50%{box-shadow:0 0 0 8px rgba(245,158,11,0)}
+}
+</style>
 
 <script>
 /* ════════════════════════════════════════════
@@ -1268,35 +887,21 @@ let activeFilter = 'all';
 let searchTerm = '';
 let flashId = null;
 
-/* ════════════════════════════════════════════
-   HELPERS
-════════════════════════════════════════════ */
 const STEP_ORDER = ['processing', 'dispatched', 'out', 'delivered'];
 const NEXT_STATUS = { processing:'dispatched', dispatched:'out', out:'delivered' };
 
 function getStatusIndex(s) { return STEP_ORDER.indexOf(s); }
 
 function statusBadge(s) {
-  const map = {
-    processing: ['Processing', 'processing'],
-    dispatched:  ['Dispatched', 'dispatched'],
-    out:         ['Out for Del.', 'out'],
-    delivered:   ['Delivered', 'delivered'],
-    delayed:     ['Delayed', 'delayed'],
-  };
-  const [label, cls] = map[s] || ['Unknown', 'processing'];
+  const map = { processing:['Processing','processing'], dispatched:['Dispatched','dispatched'], out:['Out for Del.','out'], delivered:['Delivered','delivered'], delayed:['Delayed','delayed'] };
+  const [label, cls] = map[s] || ['Unknown','processing'];
   return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
 }
 
-function slaTag(s, eta) {
+function slaTag(s) {
   if (s === 'ok') return `<div class="sla-tag ok">✓ On Track</div>`;
   if (s === 'risk') return `<div class="sla-tag risk">⚠ At Risk</div>`;
   return `<div class="sla-tag fail">✕ Missed</div>`;
-}
-
-function slaBarHTML(s) {
-  const pct = s === 'ok' ? '100%' : s === 'risk' ? '55%' : '20%';
-  return `<div class="sla-bar"><div class="sla-fill ${s}" style="width:${pct}"></div></div>`;
 }
 
 function cityDot(city) {
@@ -1305,22 +910,13 @@ function cityDot(city) {
   return `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${c};margin-right:5px;flex-shrink:0;"></span>`;
 }
 
-/* ════════════════════════════════════════════
-   CLOCK
-════════════════════════════════════════════ */
 function tickClock() {
   const el = document.getElementById('clock');
-  if (el) {
-    const now = new Date();
-    el.textContent = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }) + ' IST';
-  }
+  if (el) el.textContent = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }) + ' IST';
 }
 setInterval(tickClock, 1000);
 tickClock();
 
-/* ════════════════════════════════════════════
-   PAGE ROUTING
-════════════════════════════════════════════ */
 function setPage(p, el) {
   currentPage = p;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1331,123 +927,57 @@ function setPage(p, el) {
   render();
 }
 
-/* ════════════════════════════════════════════
-   KPI CALCULATIONS
-════════════════════════════════════════════ */
-let slaRate = 96.2;
-let avgTime = 3.4;
+let slaRate = 96.2, avgTime = 3.4;
 
 function calcKPIs() {
-  const active = orders.filter(o => o.status !== 'delivered').length;
-  const ofd    = orders.filter(o => o.status === 'out').length;
-  const delivered = orders.filter(o => o.status === 'delivered').length;
-  return { active, ofd, delivered, slaRate, avgTime };
+  return {
+    active: orders.filter(o => o.status !== 'delivered').length,
+    ofd: orders.filter(o => o.status === 'out').length,
+    delivered: orders.filter(o => o.status === 'delivered').length,
+    slaRate, avgTime
+  };
 }
 
-/* ════════════════════════════════════════════
-   RENDER CONTROLLER
-════════════════════════════════════════════ */
 function render() {
   const c = document.getElementById('page-content');
-  if (currentPage === 'tracking')   renderTracking(c);
+  if (currentPage === 'tracking') renderTracking(c);
   else if (currentPage === 'inventory') renderInventory(c);
-  else if (currentPage === 'returns')   renderReturns(c);
-  else if (currentPage === 'revenue')   renderRevenue(c);
+  else if (currentPage === 'returns') renderReturns(c);
+  else if (currentPage === 'revenue') renderRevenue(c);
 }
 
-/* ════════════════════════════════════════════
-   TRACKING PAGE
-════════════════════════════════════════════ */
 function renderTracking(c) {
   const { active, ofd, delivered, slaRate: sr, avgTime: at } = calcKPIs();
   const filtered = getFiltered();
-
-  /* update nav badge */
   const nb = document.getElementById('nav-active-count');
   if (nb) nb.textContent = active;
-
-  const filterCounts = {
-    all: orders.length,
-    processing: orders.filter(o=>o.status==='processing').length,
-    dispatched:  orders.filter(o=>o.status==='dispatched').length,
-    out:         orders.filter(o=>o.status==='out').length,
-    delivered:   orders.filter(o=>o.status==='delivered').length,
-    delayed:     orders.filter(o=>o.status==='delayed').length,
-  };
+  const filterCounts = { all:orders.length, processing:orders.filter(o=>o.status==='processing').length, dispatched:orders.filter(o=>o.status==='dispatched').length, out:orders.filter(o=>o.status==='out').length, delivered:orders.filter(o=>o.status==='delivered').length, delayed:orders.filter(o=>o.status==='delayed').length };
 
   c.innerHTML = `
   <div class="kpi-strip">
-    <div class="kpi-card">
-      <div class="kpi-label">Active Orders</div>
-      <div class="kpi-number" id="kpi-active">${active}</div>
-      <div class="kpi-sub"><span class="kpi-delta up">↑ 3</span> since 09:00</div>
-    </div>
-    <div class="kpi-card green-accent">
-      <div class="kpi-label">SLA Hit Rate</div>
-      <div class="kpi-number" id="kpi-sla" style="color:var(--green)">${sr.toFixed(1)}<span class="unit">%</span></div>
-      <div class="kpi-sub"><span class="kpi-delta up">✓</span> Sub-4hr target</div>
-    </div>
-    <div class="kpi-card amber-accent">
-      <div class="kpi-label">Out for Delivery</div>
-      <div class="kpi-number" id="kpi-ofd">${ofd}</div>
-      <div class="kpi-sub"><span class="kpi-delta warn">⚡</span> En route now</div>
-    </div>
-    <div class="kpi-card blue-accent">
-      <div class="kpi-label">Avg. Delivery Time</div>
-      <div class="kpi-number" id="kpi-avg">${at.toFixed(1)}<span class="unit">hr</span></div>
-      <div class="kpi-sub"><span class="kpi-delta up">↓ 0.2hr</span> vs yesterday</div>
-    </div>
+    <div class="kpi-card"><div class="kpi-label">Active Orders</div><div class="kpi-number" id="kpi-active">${active}</div><div class="kpi-sub"><span class="kpi-delta up">↑ 3</span> since 09:00</div></div>
+    <div class="kpi-card green-accent"><div class="kpi-label">SLA Hit Rate</div><div class="kpi-number" id="kpi-sla" style="color:var(--green)">${sr.toFixed(1)}<span class="unit">%</span></div><div class="kpi-sub"><span class="kpi-delta up">✓</span> Sub-4hr target</div></div>
+    <div class="kpi-card amber-accent"><div class="kpi-label">Out for Delivery</div><div class="kpi-number" id="kpi-ofd">${ofd}</div><div class="kpi-sub"><span class="kpi-delta warn">⚡</span> En route now</div></div>
+    <div class="kpi-card blue-accent"><div class="kpi-label">Avg. Delivery Time</div><div class="kpi-number" id="kpi-avg">${at.toFixed(1)}<span class="unit">hr</span></div><div class="kpi-sub"><span class="kpi-delta up">↓ 0.2hr</span> vs yesterday</div></div>
   </div>
-
   <div class="controls-row">
     <div class="filter-group">
-      ${[
-        {k:'all', l:'All'},
-        {k:'processing', l:'Processing'},
-        {k:'dispatched', l:'Dispatched'},
-        {k:'out', l:'Out for Del.'},
-        {k:'delivered', l:'Delivered'},
-        {k:'delayed', l:'Delayed'},
-      ].map(f => `
-        <button class="pill-btn s-${f.k} ${activeFilter===f.k?'active':''}" onclick="setFilter('${f.k}')">
-          ${f.l} <span class="count-tag">${filterCounts[f.k]}</span>
-        </button>
-      `).join('')}
+      ${[{k:'all',l:'All'},{k:'processing',l:'Processing'},{k:'dispatched',l:'Dispatched'},{k:'out',l:'Out for Del.'},{k:'delivered',l:'Delivered'},{k:'delayed',l:'Delayed'}].map(f=>`<button class="pill-btn s-${f.k} ${activeFilter===f.k?'active':''}" onclick="setFilter('${f.k}')">${f.l} <span class="count-tag">${filterCounts[f.k]}</span></button>`).join('')}
     </div>
     <div class="controls-right">
       <div class="search-box">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         <input id="search-input" placeholder="Order ID, customer, city…" value="${searchTerm}" oninput="setSearch(this.value)">
       </div>
-      <button class="sort-btn">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M1 3h10M3 6h6M5 9h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-        Sort
-      </button>
+      <button class="sort-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 3h10M3 6h6M5 9h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Sort</button>
     </div>
   </div>
-
   <div class="table-container">
     <div class="table-header-row">
-      <div class="th">Order ID</div>
-      <div class="th">Customer</div>
-      <div class="th">City</div>
-      <div class="th">Product</div>
-      <div class="th">Status</div>
-      <div class="th">ETA</div>
-      <div class="th">SLA</div>
-      <div class="th">Fulfillment Ctr</div>
-      <div class="th"></div>
+      <div class="th">Order ID</div><div class="th">Customer</div><div class="th">City</div><div class="th">Product</div><div class="th">Status</div><div class="th">ETA</div><div class="th">SLA</div><div class="th">Fulfillment Ctr</div><div class="th"></div>
     </div>
     <div class="table-body" id="order-list">
-      ${filtered.length === 0
-        ? `<div class="table-empty"><div class="table-empty-icon">◫</div>No orders match this filter</div>`
-        : filtered.map(o => renderRow(o)).join('')
-      }
+      ${filtered.length === 0 ? `<div class="table-empty"><div class="table-empty-icon">◫</div>No orders match this filter</div>` : filtered.map(o => renderRow(o)).join('')}
     </div>
   </div>`;
 }
@@ -1456,8 +986,7 @@ function renderRow(o) {
   const risk = o.sla === 'risk' ? ' sla-risk' : o.sla === 'fail' ? ' sla-fail' : '';
   const flash = flashId === o.id ? ' row-updated' : '';
   const fcShort = o.fc.replace(' FC','').split(' ').slice(0,2).join(' ');
-  return `
-  <div class="order-row${risk}${flash}" id="row-${o.id}" onclick="openPanel('${o.id}')">
+  return `<div class="order-row${risk}${flash}" id="row-${o.id}" onclick="openPanel('${o.id}')">
     <div class="cell order-id-cell">${o.id}</div>
     <div class="cell">${o.customer}</div>
     <div class="cell"><div class="city-tag">${cityDot(o.city)}${o.city}</div></div>
@@ -1466,13 +995,7 @@ function renderRow(o) {
     <div class="cell mono" style="${o.sla==='risk'?'color:var(--amber)':o.sla==='fail'?'color:var(--red)':''}">${o.eta}</div>
     <div class="cell">${slaTag(o.sla)}</div>
     <div class="cell dim" style="font-size:9.5px">${fcShort}</div>
-    <div class="cell" style="display:flex;justify-content:flex-end">
-      <button class="action-btn" onclick="event.stopPropagation();openPanel('${o.id}')">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-          <path d="M1 5.5h9M6.5 2l3.5 3.5L6.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
+    <div class="cell" style="display:flex;justify-content:flex-end"><button class="action-btn" onclick="event.stopPropagation();openPanel('${o.id}')"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 5.5h9M6.5 2l3.5 3.5L6.5 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
   </div>`;
 }
 
@@ -1488,27 +1011,20 @@ function getFiltered() {
 function setFilter(f) { activeFilter = f; render(); }
 function setSearch(v) { searchTerm = v; render(); }
 
-/* ════════════════════════════════════════════
-   DETAIL PANEL
-════════════════════════════════════════════ */
 function openPanel(id) {
   const o = orders.find(x => x.id === id);
   if (!o) return;
-
   document.getElementById('p-oid').textContent = o.id;
   document.getElementById('p-customer').textContent = o.customer;
   document.getElementById('p-sku').textContent = o.sku + ' · ' + o.city;
-
   const steps = [
-    { name:'Order Placed',        time: o.placed,                             statusReq: null },
-    { name:'Picked & Packed',     time: o.status!=='processing' ? o.placed+' → '+o.dispatched : '—', statusReq:'dispatched' },
-    { name:'Dispatched from FC',  time: o.status!=='processing' ? o.dispatched : '—',                statusReq:'dispatched' },
-    { name:'Out for Delivery',    time: o.status==='out'||o.status==='delivered' ? 'En route · '+o.fc : '—', statusReq:'out' },
-    { name:'Delivered',           time: o.status==='delivered' ? 'Completed ✓' : `Est. ${o.eta}`,   statusReq:'delivered' },
+    { name:'Order Placed', time: o.placed, statusReq: null },
+    { name:'Picked & Packed', time: o.status!=='processing' ? o.placed+' → '+o.dispatched : '—', statusReq:'dispatched' },
+    { name:'Dispatched from FC', time: o.status!=='processing' ? o.dispatched : '—', statusReq:'dispatched' },
+    { name:'Out for Delivery', time: o.status==='out'||o.status==='delivered' ? 'En route · '+o.fc : '—', statusReq:'out' },
+    { name:'Delivered', time: o.status==='delivered' ? 'Completed ✓' : `Est. ${o.eta}`, statusReq:'delivered' },
   ];
-
   const curIdx = getStatusIndex(o.status);
-
   function stepClass(i) {
     if (i === 0) return 'done';
     const req = steps[i].statusReq;
@@ -1517,41 +1033,15 @@ function openPanel(id) {
     if (ri === curIdx && o.status !== 'delayed') return 'current';
     return 'pending';
   }
-
-  const slaGauge = () => {
-    const [pct, cls, label] = o.sla === 'ok' ? ['100', 'ok', 'On Track'] : o.sla === 'risk' ? ['52', 'risk', 'At Risk'] : ['18', 'fail', 'SLA Missed'];
-    return `<div class="sla-gauge-wrap">
-      <div style="font-size:9px;color:var(--ash);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap">SLA Status</div>
-      <div class="gauge-track"><div class="gauge-fill ${cls}" style="width:${pct}%"></div></div>
-      <div class="gauge-label ${o.sla==='ok'?'':'sla-tag '+(o.sla)}" style="color:${o.sla==='ok'?'var(--green)':o.sla==='risk'?'var(--amber)':'var(--red)'}">${label}</div>
-    </div>`;
-  };
-
+  const [pct, cls, label] = o.sla === 'ok' ? ['100','ok','On Track'] : o.sla === 'risk' ? ['52','risk','At Risk'] : ['18','fail','SLA Missed'];
   document.getElementById('panel-content').innerHTML = `
     <div class="panel-section">
       <div class="panel-section-title">Delivery Progress <span style="color:var(--chalk-40);font-size:8px">${o.status.toUpperCase()}</span></div>
-      <div class="stepper">
-        ${steps.map((s, i) => {
-          const sc = stepClass(i);
-          const isLast = i === steps.length - 1;
-          return `<div class="step">
-            <div class="step-track">
-              <div class="step-node ${sc}"></div>
-              ${!isLast ? `<div class="step-connector ${sc==='done'?'done':''}"></div>` : ''}
-            </div>
-            <div class="step-body">
-              <div class="step-name ${sc==='pending'?'pending':''}">${s.name}</div>
-              <div class="step-time ${sc==='current'?'active':''}">${s.time}</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
+      <div class="stepper">${steps.map((s,i)=>{const sc=stepClass(i);return`<div class="step"><div class="step-track"><div class="step-node ${sc}"></div>${i<steps.length-1?`<div class="step-connector ${sc==='done'?'done':''}"></div>`:''}</div><div class="step-body"><div class="step-name ${sc==='pending'?'pending':''}">${s.name}</div><div class="step-time ${sc==='current'?'active':''}">${s.time}</div></div></div>`;}).join('')}</div>
     </div>
-
     <div class="panel-section">
-      ${slaGauge()}
+      <div class="sla-gauge-wrap"><div style="font-size:9px;color:var(--ash);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap">SLA Status</div><div class="gauge-track"><div class="gauge-fill ${cls}" style="width:${pct}%"></div></div><div class="gauge-label sla-tag ${cls}" style="color:${o.sla==='ok'?'var(--green)':o.sla==='risk'?'var(--amber)':'var(--red)'}">${label}</div></div>
     </div>
-
     <div class="panel-section">
       <div class="panel-section-title">Order Details</div>
       <div class="panel-meta-grid">
@@ -1562,26 +1052,7 @@ function openPanel(id) {
         <div class="meta-item"><div class="meta-label">Placed At</div><div class="meta-value">${o.placed}</div></div>
         <div class="meta-item"><div class="meta-label">Customer Phone</div><div class="meta-value" style="color:var(--blue)">+91 ${o.phone}</div></div>
       </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-section-title">Status History</div>
-      <div style="background:var(--carbon2);border:1px solid var(--border);border-radius:3px;overflow:hidden">
-        ${[
-          { time: o.placed,                                        event: 'Order placed via Shopify',         col: 'var(--chalk-40)' },
-          { time: o.status!=='processing' ? o.dispatched : '—',  event: 'Packed at ' + o.fc,                 col: 'var(--blue)' },
-          { time: o.status!=='processing' ? o.dispatched : '—',  event: 'Dispatched · Rider assigned',        col: 'var(--amber)' },
-          o.status==='out'||o.status==='delivered' ? { time: o.dispatched, event:'Out for delivery',          col: 'var(--red)' }     : null,
-          o.status==='delivered' ? { time:'Completed', event:'Successfully delivered',                         col: 'var(--green)' }   : null,
-          o.status==='delayed'   ? { time: o.dispatched, event:'⚠ Delivery delayed · Ops notified',           col: 'var(--amber)' }   : null,
-        ].filter(Boolean).map((e, i, arr) => `
-          <div style="display:flex;gap:12px;padding:9px 14px;${i<arr.length-1?'border-bottom:1px solid var(--border)':''}">
-            <div style="font-size:10px;color:var(--ash);min-width:44px;flex-shrink:0;font-variant-numeric:tabular-nums">${e.time}</div>
-            <div style="font-size:11px;color:${e.col}">${e.event}</div>
-          </div>`).join('')}
-      </div>
     </div>`;
-
   document.getElementById('overlay').classList.add('open');
   document.getElementById('detail-panel').classList.add('open');
 }
@@ -1591,115 +1062,35 @@ function closePanel() {
   document.getElementById('detail-panel').classList.remove('open');
 }
 
-/* ════════════════════════════════════════════
-   INVENTORY SHELL PAGE
-════════════════════════════════════════════ */
 function renderInventory(c) {
-  c.innerHTML = `
-  <div class="shell-header">
-    <div>
-      <div class="shell-page-title">Inventory Control</div>
-      <div class="shell-page-sub">Live stock across 8 urban fulfillment centers</div>
-    </div>
-    <div class="coming-badge">
-      <div class="brand-dot"></div>
-      In Development
-    </div>
-  </div>
-
-  <div class="shell-kpi-row">
-    <div class="shell-kpi"><div class="shell-kpi-label">Total SKUs Managed</div><div class="shell-kpi-value">1,248</div></div>
-    <div class="shell-kpi"><div class="shell-kpi-label">Low Stock Alerts</div><div class="shell-kpi-value" style="color:var(--amber)">14</div></div>
-    <div class="shell-kpi"><div class="shell-kpi-label">Fulfillment Centers</div><div class="shell-kpi-value">8</div></div>
-  </div>
-
-  <div class="shell-table">
-    <div class="shell-table-head">
-      <div class="shell-th">SKU</div>
-      <div class="shell-th" style="min-width:160px">Product</div>
-      <div class="shell-th">Stock Qty</div>
-      <div class="shell-th">FC Location</div>
-      <div class="shell-th">Status</div>
-    </div>
-    ${[
-      ['SK-001', 'Vitamin C Serum 30ml',     '48',  'Andheri West FC',  'In Stock'],
-      ['SK-002', 'Retinol Night Cream 50ml', '12',  'Koramangala FC',   'Low Stock'],
-      ['SK-003', 'SPF 50 Sunscreen 80ml',    '200', 'Hinjewadi FC',     'In Stock'],
-      ['SK-004', 'Hair Growth Serum 50ml',   '7',   'Saket FC',         'Critical'],
-      ['SK-005', 'Rose Clay Mask 75g',        '91',  'Bandra FC',        'In Stock'],
-    ].map(r => `
-      <div class="shell-row">
-        <div class="shell-cell" style="color:var(--red)">${r[0]}</div>
-        <div class="shell-cell" style="min-width:160px">${r[1]}</div>
-        <div class="shell-cell">${r[2]}</div>
-        <div class="shell-cell">${r[3]}</div>
-        <div class="shell-cell" style="color:${r[4]==='In Stock'?'var(--green)':r[4]==='Critical'?'var(--red)':'var(--amber)'}">${r[4]}</div>
-      </div>`).join('')}
-    <div class="shell-footer-note">Full inventory module · Coming Q3 2025</div>
-  </div>`;
+  c.innerHTML = `<div class="shell-header"><div><div class="shell-page-title">Inventory Control</div><div class="shell-page-sub">Live stock across 8 urban fulfillment centers</div></div><div class="coming-badge"><div class="brand-dot"></div>In Development</div></div><div class="shell-kpi-row"><div class="shell-kpi"><div class="shell-kpi-label">Total SKUs Managed</div><div class="shell-kpi-value">1,248</div></div><div class="shell-kpi"><div class="shell-kpi-label">Low Stock Alerts</div><div class="shell-kpi-value" style="color:var(--amber)">14</div></div><div class="shell-kpi"><div class="shell-kpi-label">Fulfillment Centers</div><div class="shell-kpi-value">8</div></div></div><div class="shell-table"><div class="shell-table-head"><div class="shell-th">SKU</div><div class="shell-th" style="min-width:160px">Product</div><div class="shell-th">Stock Qty</div><div class="shell-th">FC Location</div><div class="shell-th">Status</div></div>${[['SK-001','Vitamin C Serum 30ml','48','Andheri West FC','In Stock'],['SK-002','Retinol Night Cream 50ml','12','Koramangala FC','Low Stock'],['SK-003','SPF 50 Sunscreen 80ml','200','Hinjewadi FC','In Stock'],['SK-004','Hair Growth Serum 50ml','7','Saket FC','Critical'],['SK-005','Rose Clay Mask 75g','91','Bandra FC','In Stock']].map(r=>`<div class="shell-row"><div class="shell-cell" style="color:var(--red)">${r[0]}</div><div class="shell-cell" style="min-width:160px">${r[1]}</div><div class="shell-cell">${r[2]}</div><div class="shell-cell">${r[3]}</div><div class="shell-cell" style="color:${r[4]==='In Stock'?'var(--green)':r[4]==='Critical'?'var(--red)':'var(--amber)'}">${r[4]}</div></div>`).join('')}<div class="shell-footer-note">Full inventory module · Coming Q3 2025</div></div>`;
 }
 
-/* ════════════════════════════════════════════
-   RETURNS SHELL PAGE
-════════════════════════════════════════════ */
 function renderReturns(c) {
-  c.innerHTML = `
-  <div class="shell-header">
-    <div>
-      <div class="shell-page-title">Returns &amp; RTO</div>
-      <div class="shell-page-sub">Reverse logistics · Return to Origin analytics</div>
-    </div>
-    <div class="coming-badge">
-      <div class="brand-dot"></div>
-      In Development
-    </div>
-  </div>
-
-  <div class="shell-kpi-row">
-    <div class="shell-kpi"><div class="shell-kpi-label">RTO Rate (30 days)</div><div class="shell-kpi-value" style="color:var(--green)">4.2%</div></div>
-    <div class="shell-kpi"><div class="shell-kpi-label">Pending Returns</div><div class="shell-kpi-value" style="color:var(--amber)">23</div></div>
-    <div class="shell-kpi"><div class="shell-kpi-label">Avg. Return Cycle</div><div class="shell-kpi-value">38<span style="font-size:16px;color:var(--ash)">hr</span></div></div>
-  </div>
-
-  <div class="shell-table">
-    <div class="shell-table-head">
-      <div class="shell-th">Order ID</div>
-      <div class="shell-th" style="min-width:200px">Return Reason</div>
-      <div class="shell-th">Stage</div>
-      <div class="shell-th">Initiated</div>
-    </div>
-    ${[
-      ['WS-048101', 'Not home — 3 delivery attempts', 'In Transit',    'Mar 16'],
-      ['WS-048088', 'Customer refused delivery',       'Restocked',     'Mar 15'],
-      ['WS-048072', 'Damaged in transit',              'Under Review',  'Mar 14'],
-      ['WS-048060', 'Wrong item delivered',            'Pending Pickup','Mar 13'],
-      ['WS-048044', 'Quality issue reported',          'Restocked',     'Mar 11'],
-    ].map(r => `
-      <div class="shell-row">
-        <div class="shell-cell" style="color:var(--red)">${r[0]}</div>
-        <div class="shell-cell" style="min-width:200px">${r[1]}</div>
-        <div class="shell-cell">${r[2]}</div>
-        <div class="shell-cell">${r[3]}</div>
-      </div>`).join('')}
-    <div class="shell-footer-note">Full returns & RTO module · Coming Q3 2025</div>
-  </div>`;
+  c.innerHTML = `<div class="shell-header"><div><div class="shell-page-title">Returns &amp; RTO</div><div class="shell-page-sub">Reverse logistics · Return to Origin analytics</div></div><div class="coming-badge"><div class="brand-dot"></div>In Development</div></div><div class="shell-kpi-row"><div class="shell-kpi"><div class="shell-kpi-label">RTO Rate (30 days)</div><div class="shell-kpi-value" style="color:var(--green)">4.2%</div></div><div class="shell-kpi"><div class="shell-kpi-label">Pending Returns</div><div class="shell-kpi-value" style="color:var(--amber)">23</div></div><div class="shell-kpi"><div class="shell-kpi-label">Avg. Return Cycle</div><div class="shell-kpi-value">38<span style="font-size:16px;color:var(--ash)">hr</span></div></div></div><div class="shell-table"><div class="shell-table-head"><div class="shell-th">Order ID</div><div class="shell-th" style="min-width:200px">Return Reason</div><div class="shell-th">Stage</div><div class="shell-th">Initiated</div></div>${[['WS-048101','Not home — 3 delivery attempts','In Transit','Mar 16'],['WS-048088','Customer refused delivery','Restocked','Mar 15'],['WS-048072','Damaged in transit','Under Review','Mar 14'],['WS-048060','Wrong item delivered','Pending Pickup','Mar 13'],['WS-048044','Quality issue reported','Restocked','Mar 11']].map(r=>`<div class="shell-row"><div class="shell-cell" style="color:var(--red)">${r[0]}</div><div class="shell-cell" style="min-width:200px">${r[1]}</div><div class="shell-cell">${r[2]}</div><div class="shell-cell">${r[3]}</div></div>`).join('')}<div class="shell-footer-note">Full returns &amp; RTO module · Coming Q3 2025</div></div>`;
 }
 
-/* ════════════════════════════════════════════
-   LIVE SIMULATION
-════════════════════════════════════════════ */
-// KPI drift every 4s
+let revTab = '1M';
+function renderRevenue(c) {
+  c.innerHTML = `<style>.rev-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.rev-kpi{background:var(--carbon);border:1px solid var(--border);border-radius:3px;padding:16px 18px;position:relative;overflow:hidden}.rev-kpi::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px}.rev-kpi.primary::before{background:linear-gradient(90deg,var(--red),transparent)}.rev-kpi.g::before{background:linear-gradient(90deg,var(--green),transparent)}.rev-kpi.b::before{background:linear-gradient(90deg,var(--blue),transparent)}.rev-kpi.a::before{background:linear-gradient(90deg,var(--amber),transparent)}.rev-kpi-label{font-size:9px;color:var(--ash);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}.rev-kpi-val{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1;letter-spacing:1px;color:var(--chalk)}.rev-kpi.primary .rev-kpi-val{color:var(--red)}.rev-change{display:inline-flex;align-items:center;gap:4px;font-size:9px;margin-top:7px;padding:2px 6px;border-radius:2px}.rev-change.up{color:var(--green);background:var(--green-dim)}.rev-change.down{color:var(--red);background:var(--red-dim)}.rev-chart-row{display:grid;grid-template-columns:2fr 1fr;gap:12px}.rev-card{background:var(--carbon);border:1px solid var(--border);border-radius:3px;padding:18px 20px}.rev-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.rev-card-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--chalk)}.rev-card-badge{font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:2px;background:var(--red-dim);color:var(--red)}.period-tabs{display:flex;background:var(--carbon2);border:1px solid var(--border);border-radius:3px;padding:3px;gap:2px}.period-tab{font-size:10px;letter-spacing:1px;padding:4px 11px;border-radius:2px;cursor:pointer;color:var(--ash);border:none;background:none;font-family:'DM Mono',monospace;transition:all 0.12s;text-transform:uppercase}.period-tab:hover{color:var(--chalk)}.period-tab.active{background:var(--red);color:#fff}.bar-chart-area{display:flex;align-items:flex-end;gap:8px;height:130px;padding-bottom:24px;position:relative;padding-left:36px}.bc-grid{position:absolute;top:0;left:36px;right:0;bottom:24px;pointer-events:none}.bc-gridline{position:absolute;left:0;right:0;height:1px;background:var(--border)}.bc-gridlabel{position:absolute;left:-34px;font-size:9px;color:var(--ash);transform:translateY(-50%);font-variant-numeric:tabular-nums}.bc-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}.bc-bar{width:100%;border-radius:2px 2px 0 0;background:var(--carbon3);cursor:pointer;transition:background 0.15s;animation:bar-rise 0.5s ease-out both}.bc-bar:hover{background:var(--ash2)!important}.bc-bar.cur{background:var(--red)!important}@keyframes bar-rise{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1)}}.bc-label{font-size:9px;color:var(--ash);position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);white-space:nowrap}.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}.donut-legend{width:100%;display:flex;flex-direction:column;gap:8px}.legend-row{display:flex;align-items:center;justify-content:space-between}.legend-left{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ash)}.legend-dot{width:7px;height:7px;border-radius:1px;flex-shrink:0}.legend-val{font-size:11px;color:var(--chalk)}.rev-bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.city-tbl{width:100%;border-collapse:collapse;font-size:11px}.city-tbl th{font-size:8.5px;color:var(--ash);letter-spacing:2px;text-transform:uppercase;padding:0 0 10px;border-bottom:1px solid var(--border);text-align:left}.city-tbl td{padding:10px 0;border-bottom:1px solid var(--border);color:var(--chalk)}.city-tbl tr:last-child td{border-bottom:none}.city-tbl tr:hover td{color:var(--red);transition:color 0.12s}.city-code{display:inline-block;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:2px}.bar-inline{height:3px;border-radius:2px;background:var(--red);margin-top:4px}.metric-list{display:flex;flex-direction:column;gap:12px}.metric-item{display:flex;align-items:center;justify-content:space-between;gap:12px}.metric-name{font-size:10px;color:var(--ash);letter-spacing:0.5px;margin-bottom:3px}.metric-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--chalk)}</style>
+  <div class="rev-kpi-row"><div class="rev-kpi primary"><div class="rev-kpi-label">Total Revenue</div><div class="rev-kpi-val">₹84.2L</div><div class="rev-change up">↑ 18.4% vs last month</div></div><div class="rev-kpi g"><div class="rev-kpi-label">Gross Margin</div><div class="rev-kpi-val">34.7%</div><div class="rev-change up">↑ 2.1 pts</div></div><div class="rev-kpi b"><div class="rev-kpi-label">Orders Billed</div><div class="rev-kpi-val">12,840</div><div class="rev-change up">↑ 9.3%</div></div><div class="rev-kpi a"><div class="rev-kpi-label">Avg Order Value</div><div class="rev-kpi-val">₹655</div><div class="rev-change down">↓ 1.2%</div></div></div>
+  <div class="rev-chart-row"><div class="rev-card"><div class="rev-card-header"><div class="rev-card-title">Monthly Revenue</div><div class="period-tabs">${['7D','1M','3M','1Y'].map(t=>`<button class="period-tab${revTab===t?' active':''}" onclick="setRevTab('${t}')">${t}</button>`).join('')}</div></div><div class="bar-chart-area"><div class="bc-grid"><div class="bc-gridline" style="bottom:75%"><span class="bc-gridlabel">₹80L</span></div><div class="bc-gridline" style="bottom:50%"><span class="bc-gridlabel">₹60L</span></div><div class="bc-gridline" style="bottom:25%"><span class="bc-gridlabel">₹40L</span></div></div>${[{m:'Aug',h:52},{m:'Sep',h:58},{m:'Oct',h:61},{m:'Nov',h:55},{m:'Dec',h:70},{m:'Jan',h:63},{m:'Feb',h:71},{m:'Mar',h:88,cur:true}].map((b,i)=>`<div class="bc-col"><div class="bc-bar${b.cur?' cur':''}" style="height:${b.h}%;animation-delay:${i*0.05}s"><span class="bc-label">${b.m}</span></div></div>`).join('')}</div></div><div class="rev-card"><div class="rev-card-header"><div class="rev-card-title">Revenue Mix</div><div class="rev-card-badge">Mar 2026</div></div><div class="donut-wrap"><svg width="130" height="130" viewBox="0 0 130 130"><circle cx="65" cy="65" r="48" fill="none" stroke="#E8002D" stroke-width="17" stroke-dasharray="156.4 301.6" stroke-dashoffset="75.4"/><circle cx="65" cy="65" r="48" fill="none" stroke="#8C001B" stroke-width="17" stroke-dasharray="84.2 374" stroke-dashoffset="-81"/><circle cx="65" cy="65" r="48" fill="none" stroke="#2A2A2A" stroke-width="17" stroke-dasharray="36.2 421.8" stroke-dashoffset="-165.2"/><circle cx="65" cy="65" r="48" fill="none" stroke="#1C1C1C" stroke-width="17" stroke-dasharray="24.1 434" stroke-dashoffset="-201.4"/><text x="65" y="60" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="19" fill="#F2EEE8">₹84.2L</text><text x="65" y="75" text-anchor="middle" font-family="'DM Mono',monospace" font-size="8" fill="#5A5A5A" letter-spacing="2">TOTAL</text></svg><div class="donut-legend"><div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:var(--red)"></div>Fulfillment</div><div class="legend-val">52%</div></div><div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:#8C001B"></div>Shipping</div><div class="legend-val">28%</div></div><div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:#3A3A3A"></div>Returns</div><div class="legend-val">12%</div></div><div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:#2A2A2A;border:1px solid #444"></div>Storage</div><div class="legend-val">8%</div></div></div></div></div></div>
+  <div class="rev-bottom-row"><div class="rev-card"><div class="rev-card-header"><div class="rev-card-title">Revenue by City</div><div class="rev-card-badge">Top 5</div></div><table class="city-tbl"><thead><tr><th>City</th><th>Revenue</th><th>Share</th></tr></thead><tbody>${[{code:'MUM',city:'Mumbai',rev:'₹28.4L',pct:100,col:'var(--red)',bg:'var(--red-dim)'},{code:'DEL',city:'Delhi',rev:'₹22.1L',pct:78,col:'#FF6B5B',bg:'rgba(255,107,91,0.1)'},{code:'BLR',city:'Bengaluru',rev:'₹16.8L',pct:59,col:'var(--green)',bg:'var(--green-dim)'},{code:'HYD',city:'Hyderabad',rev:'₹9.3L',pct:33,col:'var(--amber)',bg:'var(--amber-dim)'},{code:'CHE',city:'Chennai',rev:'₹7.6L',pct:27,col:'var(--ash)',bg:'var(--chalk-05)'}].map(r=>`<tr><td><span class="city-code" style="background:${r.bg};color:${r.col}">${r.code}</span></td><td>${r.rev}</td><td><div style="font-size:10px;color:var(--ash)">${r.pct===100?'33.7':r.pct===78?'26.2':r.pct===59?'19.9':r.pct===33?'11.0':'9.0'}%</div><div class="bar-inline" style="width:${r.pct}%;background:${r.col}"></div></td></tr>`).join('')}</tbody></table></div><div class="rev-card"><div class="rev-card-header"><div class="rev-card-title">Key Metrics</div></div><div class="metric-list">${[{name:'Cost per Shipment',val:'₹42.80',pts:'0,28 12,22 24,20 36,18 48,14 60,10 72,8',col:'var(--red)'},{name:'EBITDA',val:'₹14.6L',pts:'0,24 12,22 24,18 36,20 48,14 60,12 72,8',col:'var(--green)'},{name:'Returns Cost',val:'₹3.2L',pts:'0,8 12,12 24,10 36,14 48,16 60,13 72,18',col:'var(--amber)'},{name:'Cash Collected',val:'₹79.1L',pts:'0,26 12,22 24,20 36,16 48,14 60,10 72,6',col:'var(--blue)'}].map(m=>`<div class="metric-item"><div><div class="metric-name">${m.name}</div><div class="metric-val">${m.val}</div></div><svg width="72" height="32" viewBox="0 0 72 32"><polyline points="${m.pts}" fill="none" stroke="${m.col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`).join('')}</div></div></div>`;
+}
+
+function setRevTab(t) { revTab = t; if (currentPage === 'revenue') render(); }
+
+/* ── LIVE SIMULATION ── */
 setInterval(() => {
   if (currentPage !== 'tracking') return;
   slaRate = Math.min(99.5, Math.max(88, slaRate + (Math.random() - 0.52) * 0.25));
-  avgTime = Math.min(4.8,  Math.max(2.0, avgTime + (Math.random() - 0.5) * 0.06));
+  avgTime = Math.min(4.8, Math.max(2.0, avgTime + (Math.random() - 0.5) * 0.06));
   const slaEl = document.getElementById('kpi-sla');
   const avgEl = document.getElementById('kpi-avg');
   if (slaEl) { slaEl.innerHTML = slaRate.toFixed(1) + '<span class="unit">%</span>'; slaEl.classList.remove('flash-green'); void slaEl.offsetWidth; slaEl.classList.add('flash-green'); }
   if (avgEl) { avgEl.innerHTML = avgTime.toFixed(1) + '<span class="unit">hr</span>'; avgEl.classList.remove('flash-red'); void avgEl.offsetWidth; avgEl.classList.add('flash-red'); }
 }, 4000);
 
-// Order status advancement every 9s
 setInterval(() => {
   if (currentPage !== 'tracking') return;
   const eligible = orders.filter(o => o.status !== 'delivered' && o.status !== 'delayed');
@@ -1709,253 +1100,116 @@ setInterval(() => {
   if (!next) return;
   o.status = next;
   if (next === 'dispatched') o.dispatched = new Date().toTimeString().slice(0,5);
-  if (next === 'delivered')  { o.eta = '—'; o.sla = 'ok'; }
+  if (next === 'delivered') { o.eta = '—'; o.sla = 'ok'; }
   flashId = o.id;
   render();
   setTimeout(() => { flashId = null; }, 800);
 }, 9000);
 
-/* ════════════════════════════════════════════
-   REVENUE PAGE
-════════════════════════════════════════════ */
-let revTab = '1M';
-
-function renderRevenue(c) {
-  c.innerHTML = `
-  <style>
-    .rev-kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-    .rev-kpi {
-      background:var(--carbon); border:1px solid var(--border); border-radius:3px;
-      padding:16px 18px; position:relative; overflow:hidden;
-    }
-    .rev-kpi::before { content:''; position:absolute; top:0; left:0; width:100%; height:1px; }
-    .rev-kpi.primary::before { background:linear-gradient(90deg,var(--red),transparent); }
-    .rev-kpi.g::before { background:linear-gradient(90deg,var(--green),transparent); }
-    .rev-kpi.b::before { background:linear-gradient(90deg,var(--blue),transparent); }
-    .rev-kpi.a::before { background:linear-gradient(90deg,var(--amber),transparent); }
-    .rev-kpi-label { font-size:9px; color:var(--ash); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
-    .rev-kpi-val {
-      font-family:'Bebas Neue',sans-serif; font-size:38px; line-height:1;
-      letter-spacing:1px; color:var(--chalk);
-    }
-    .rev-kpi.primary .rev-kpi-val { color:var(--red); }
-    .rev-change {
-      display:inline-flex; align-items:center; gap:4px;
-      font-size:9px; margin-top:7px; padding:2px 6px; border-radius:2px;
-    }
-    .rev-change.up { color:var(--green); background:var(--green-dim); }
-    .rev-change.down { color:var(--red); background:var(--red-dim); }
-
-    .rev-chart-row { display:grid; grid-template-columns:2fr 1fr; gap:12px; }
-    .rev-card {
-      background:var(--carbon); border:1px solid var(--border); border-radius:3px;
-      padding:18px 20px;
-    }
-    .rev-card-header {
-      display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
-    }
-    .rev-card-title { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px; color:var(--chalk); }
-    .rev-card-badge {
-      font-size:8.5px; letter-spacing:1.5px; text-transform:uppercase;
-      padding:3px 8px; border-radius:2px; background:var(--red-dim); color:var(--red);
-    }
-
-    .period-tabs {
-      display:flex; background:var(--carbon2); border:1px solid var(--border);
-      border-radius:3px; padding:3px; gap:2px;
-    }
-    .period-tab {
-      font-size:10px; letter-spacing:1px; padding:4px 11px; border-radius:2px;
-      cursor:pointer; color:var(--ash); border:none; background:none;
-      font-family:'DM Mono',monospace; transition:all 0.12s; text-transform:uppercase;
-    }
-    .period-tab:hover { color:var(--chalk); }
-    .period-tab.active { background:var(--red); color:#fff; }
-
-    /* BAR CHART */
-    .bar-chart-area {
-      display:flex; align-items:flex-end; gap:8px; height:130px;
-      padding-bottom:24px; position:relative; padding-left:36px;
-    }
-    .bc-grid {
-      position:absolute; top:0; left:36px; right:0; bottom:24px; pointer-events:none;
-    }
-    .bc-gridline {
-      position:absolute; left:0; right:0; height:1px; background:var(--border);
-    }
-    .bc-gridlabel {
-      position:absolute; left:-34px; font-size:9px; color:var(--ash);
-      transform:translateY(-50%); font-variant-numeric:tabular-nums;
-    }
-    .bc-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:0; position:relative; }
-    .bc-bar {
-      width:100%; border-radius:2px 2px 0 0;
-      background:var(--carbon3); cursor:pointer; transition:background 0.15s;
-      animation:bar-rise 0.5s ease-out both;
-    }
-    .bc-bar:hover { background:var(--ash2) !important; }
-    .bc-bar.cur { background:var(--red) !important; }
-    @keyframes bar-rise { from { transform:scaleY(0); transform-origin:bottom; } to { transform:scaleY(1); } }
-    .bc-label { font-size:9px; color:var(--ash); position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); white-space:nowrap; }
-
-    /* DONUT */
-    .donut-wrap { display:flex; flex-direction:column; align-items:center; gap:14px; }
-    .donut-legend { width:100%; display:flex; flex-direction:column; gap:8px; }
-    .legend-row { display:flex; align-items:center; justify-content:space-between; }
-    .legend-left { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--ash); }
-    .legend-dot { width:7px; height:7px; border-radius:1px; flex-shrink:0; }
-    .legend-val { font-size:11px; color:var(--chalk); }
-
-    /* BOTTOM ROW */
-    .rev-bottom-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-
-    /* CITY TABLE */
-    .city-tbl { width:100%; border-collapse:collapse; font-size:11px; }
-    .city-tbl th { font-size:8.5px; color:var(--ash); letter-spacing:2px; text-transform:uppercase; padding:0 0 10px; border-bottom:1px solid var(--border); text-align:left; }
-    .city-tbl td { padding:10px 0; border-bottom:1px solid var(--border); color:var(--chalk); }
-    .city-tbl tr:last-child td { border-bottom:none; }
-    .city-tbl tr:hover td { color:var(--red); transition:color 0.12s; }
-    .city-code {
-      display:inline-block; font-size:8.5px; letter-spacing:1px; text-transform:uppercase;
-      padding:2px 6px; border-radius:2px;
-    }
-    .bar-inline { height:3px; border-radius:2px; background:var(--red); margin-top:4px; }
-
-    /* METRICS */
-    .metric-list { display:flex; flex-direction:column; gap:12px; }
-    .metric-item { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .metric-name { font-size:10px; color:var(--ash); letter-spacing:0.5px; margin-bottom:3px; }
-    .metric-val { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--chalk); }
-  </style>
-
-  <div class="rev-kpi-row">
-    <div class="rev-kpi primary">
-      <div class="rev-kpi-label">Total Revenue</div>
-      <div class="rev-kpi-val">₹84.2L</div>
-      <div class="rev-change up">↑ 18.4% vs last month</div>
-    </div>
-    <div class="rev-kpi g">
-      <div class="rev-kpi-label">Gross Margin</div>
-      <div class="rev-kpi-val">34.7%</div>
-      <div class="rev-change up">↑ 2.1 pts</div>
-    </div>
-    <div class="rev-kpi b">
-      <div class="rev-kpi-label">Orders Billed</div>
-      <div class="rev-kpi-val">12,840</div>
-      <div class="rev-change up">↑ 9.3%</div>
-    </div>
-    <div class="rev-kpi a">
-      <div class="rev-kpi-label">Avg Order Value</div>
-      <div class="rev-kpi-val">₹655</div>
-      <div class="rev-change down">↓ 1.2%</div>
-    </div>
-  </div>
-
-  <div class="rev-chart-row">
-    <div class="rev-card">
-      <div class="rev-card-header">
-        <div class="rev-card-title">Monthly Revenue</div>
-        <div class="period-tabs">
-          ${['7D','1M','3M','1Y'].map(t=>`<button class="period-tab${revTab===t?' active':''}" onclick="setRevTab('${t}')">${t}</button>`).join('')}
-        </div>
-      </div>
-      <div class="bar-chart-area">
-        <div class="bc-grid">
-          <div class="bc-gridline" style="bottom:75%"><span class="bc-gridlabel">₹80L</span></div>
-          <div class="bc-gridline" style="bottom:50%"><span class="bc-gridlabel">₹60L</span></div>
-          <div class="bc-gridline" style="bottom:25%"><span class="bc-gridlabel">₹40L</span></div>
-        </div>
-        ${[
-          {m:'Aug',h:52},{m:'Sep',h:58},{m:'Oct',h:61},{m:'Nov',h:55},
-          {m:'Dec',h:70},{m:'Jan',h:63},{m:'Feb',h:71},{m:'Mar',h:88,cur:true}
-        ].map((b,i)=>`
-          <div class="bc-col">
-            <div class="bc-bar${b.cur?' cur':''}" style="height:${b.h}%;animation-delay:${i*0.05}s">
-              <span class="bc-label">${b.m}</span>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>
-
-    <div class="rev-card">
-      <div class="rev-card-header">
-        <div class="rev-card-title">Revenue Mix</div>
-        <div class="rev-card-badge">Mar 2026</div>
-      </div>
-      <div class="donut-wrap">
-        <svg width="130" height="130" viewBox="0 0 130 130">
-          <circle cx="65" cy="65" r="48" fill="none" stroke="#E8002D" stroke-width="17" stroke-dasharray="156.4 301.6" stroke-dashoffset="75.4"/>
-          <circle cx="65" cy="65" r="48" fill="none" stroke="#8C001B" stroke-width="17" stroke-dasharray="84.2 374" stroke-dashoffset="-81"/>
-          <circle cx="65" cy="65" r="48" fill="none" stroke="#2A2A2A" stroke-width="17" stroke-dasharray="36.2 421.8" stroke-dashoffset="-165.2"/>
-          <circle cx="65" cy="65" r="48" fill="none" stroke="#1C1C1C" stroke-width="17" stroke-dasharray="24.1 434" stroke-dashoffset="-201.4"/>
-          <text x="65" y="60" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="19" fill="#F2EEE8">₹84.2L</text>
-          <text x="65" y="75" text-anchor="middle" font-family="'DM Mono',monospace" font-size="8" fill="#5A5A5A" letter-spacing="2">TOTAL</text>
-        </svg>
-        <div class="donut-legend">
-          <div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:var(--red)"></div>Fulfillment</div><div class="legend-val">52%</div></div>
-          <div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:#8C001B"></div>Shipping</div><div class="legend-val">28%</div></div>
-          <div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:#3A3A3A"></div>Returns</div><div class="legend-val">12%</div></div>
-          <div class="legend-row"><div class="legend-left"><div class="legend-dot" style="background:#2A2A2A;border:1px solid #444"></div>Storage</div><div class="legend-val">8%</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="rev-bottom-row">
-    <div class="rev-card">
-      <div class="rev-card-header">
-        <div class="rev-card-title">Revenue by City</div>
-        <div class="rev-card-badge">Top 5</div>
-      </div>
-      <table class="city-tbl">
-        <thead><tr><th>City</th><th>Revenue</th><th>Share</th></tr></thead>
-        <tbody>
-          ${[
-            {code:'MUM',city:'Mumbai',    rev:'₹28.4L',pct:100,  col:'var(--red)',   bg:'var(--red-dim)'},
-            {code:'DEL',city:'Delhi',     rev:'₹22.1L',pct:78,   col:'#FF6B5B',     bg:'rgba(255,107,91,0.1)'},
-            {code:'BLR',city:'Bengaluru', rev:'₹16.8L',pct:59,   col:'var(--green)', bg:'var(--green-dim)'},
-            {code:'HYD',city:'Hyderabad', rev:'₹9.3L', pct:33,   col:'var(--amber)', bg:'var(--amber-dim)'},
-            {code:'CHE',city:'Chennai',   rev:'₹7.6L', pct:27,   col:'var(--ash)',   bg:'var(--chalk-05)'},
-          ].map(r=>`<tr>
-            <td><span class="city-code" style="background:${r.bg};color:${r.col}">${r.code}</span></td>
-            <td>${r.rev}</td>
-            <td><div style="font-size:10px;color:var(--ash)">${r.pct===100?'33.7':r.pct===78?'26.2':r.pct===59?'19.9':r.pct===33?'11.0':'9.0'}%</div><div class="bar-inline" style="width:${r.pct}%;background:${r.col}"></div></td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="rev-card">
-      <div class="rev-card-header"><div class="rev-card-title">Key Metrics</div></div>
-      <div class="metric-list">
-        ${[
-          {name:'Cost per Shipment', val:'₹42.80', pts:'0,28 12,22 24,20 36,18 48,14 60,10 72,8',   col:'var(--red)'},
-          {name:'EBITDA',            val:'₹14.6L', pts:'0,24 12,22 24,18 36,20 48,14 60,12 72,8',   col:'var(--green)'},
-          {name:'Returns Cost',      val:'₹3.2L',  pts:'0,8 12,12 24,10 36,14 48,16 60,13 72,18',   col:'var(--amber)'},
-          {name:'Cash Collected',    val:'₹79.1L', pts:'0,26 12,22 24,20 36,16 48,14 60,10 72,6',   col:'var(--blue)'},
-        ].map(m=>`
-          <div class="metric-item">
-            <div>
-              <div class="metric-name">${m.name}</div>
-              <div class="metric-val">${m.val}</div>
-            </div>
-            <svg width="72" height="32" viewBox="0 0 72 32">
-              <polyline points="${m.pts}" fill="none" stroke="${m.col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>`).join('')}
-      </div>
-    </div>
-  </div>`;
+/* ── ROLE SWITCHER ── */
+function switchRole(role, btn) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('app').style.display = role === 'founder' ? 'flex' : 'none';
+  document.getElementById('customer-view').style.display = role === 'customer' ? 'block' : 'none';
+  document.getElementById('admin-view').style.display = role === 'admin' ? 'block' : 'none';
+  if (role === 'customer') { setTimeout(tryInitMap, 200); }
 }
 
-function setRevTab(t) {
-  revTab = t;
-  if (currentPage === 'revenue') render();
+/* ── CUSTOMER FLOW ── */
+let trackingMapInit = false;
+let custTrackingMap = null;
+
+function showProductPage() {
+  document.getElementById('cust-tracking-page').style.display = 'none';
+  document.getElementById('cust-product-page').style.display = 'block';
 }
 
-/* ════════════════════════════════════════════
-   BOOT
-════════════════════════════════════════════ */
+function openOrderModal(product, price) {
+  document.getElementById('o-product').value = product + ' · ' + price;
+  document.getElementById('order-modal').style.display = 'flex';
+}
+
+function confirmOrder() {
+  document.getElementById('order-modal').style.display = 'none';
+  document.getElementById('order-placed-time').textContent = '· Placed at ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('cust-product-page').style.display = 'none';
+  document.getElementById('cust-tracking-page').style.display = 'block';
+  setTimeout(tryInitMap, 150);
+}
+
+function tryInitMap() {
+  if (trackingMapInit) { if (custTrackingMap) custTrackingMap.invalidateSize(); return; }
+  const el = document.getElementById('tracking-map');
+  if (!el || el.offsetHeight === 0) return;
+  if (typeof L === 'undefined') return;
+  trackingMapInit = true;
+  custTrackingMap = L.map('tracking-map').setView([22.5726, 88.3639], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(custTrackingMap);
+  const agentIcon = L.divIcon({
+    html:`<div style="width:36px;height:44px;position:relative;"><div style="width:36px;height:36px;border-radius:50%;background:#4A6CF7;border:2px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;font-family:system-ui;">RM</div><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:12px solid #4A6CF7;"></div></div>`,
+    iconSize:[40,48], iconAnchor:[20,48], className:''
+  });
+  L.marker([22.5550, 88.3700], {icon: agentIcon}).addTo(custTrackingMap).bindPopup('Rajan Mehta · On the way');
+  L.polyline([[22.5200,88.3800],[22.5550,88.3700],[22.5900,88.3500]], {color:'#4A6CF7', dashArray:'8,6', weight:2}).addTo(custTrackingMap);
+}
+
+/* ── ADMIN FEEDBACK MODAL ── */
+const FEEDBACK_DATA = [
+  {dept:'Packaging',text:'Box size S-3 too small for GlowCraft serums',emp:'Ravi T.',date:'2 days ago',status:'Flagged',statusColor:'#ef4444',manager:'Pooja S.',action:'Escalated to vendor',resolution:'In progress'},
+  {dept:'Delivery',text:'Route 7 traffic delays 30+ min on weekday evenings',emp:'Neeraj K.',date:'5 days ago',status:'Under Review',statusColor:'#f59e0b',manager:'Aryan M.',action:'Route analysis initiated',resolution:'Pending'},
+  {dept:'Warehouse',text:'Fragile stickers running out at Zone B',emp:'Deepa M.',date:'Today',status:'Acknowledged',statusColor:'#4A6CF7',manager:'Suresh P.',action:'Restock ordered',resolution:'In progress'},
+  {dept:'Packaging',text:'Weighing scale at packing station 3 incorrect',emp:'Kavya R.',date:'3 days ago',status:'Resolved',statusColor:'#22c55e',manager:'Pooja S.',action:'Scale replaced',resolution:'Resolved Apr 12'},
+  {dept:'Delivery',text:'Route 4 customers not home 12–3PM',emp:'Amar J.',date:'1 week ago',status:'Under Review',statusColor:'#f59e0b',manager:'Aryan M.',action:'Time-slot study started',resolution:'Pending'},
+  {dept:'Warehouse',text:'Cold storage temp fluctuating — Leafly shipments',emp:'Sunita B.',date:'Yesterday',status:'Flagged',statusColor:'#ef4444',manager:'Suresh P.',action:'Tech team alerted',resolution:'In progress'},
+];
+
+function openFeedback(i) {
+  const f = FEEDBACK_DATA[i];
+  document.getElementById('fm-title').textContent = f.dept + ' Feedback';
+  document.getElementById('fm-body').innerHTML = `
+    <div style="font-size:14px;color:#111;margin-bottom:16px;">${f.text}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;">
+      <div style="background:#F1F3F9;border-radius:8px;padding:12px;"><div style="color:#888;margin-bottom:4px;">Reported by</div><div style="color:#111;font-weight:500;">${f.emp} · ${f.date}</div></div>
+      <div style="background:#F1F3F9;border-radius:8px;padding:12px;"><div style="color:#888;margin-bottom:4px;">Received by</div><div style="color:#111;font-weight:500;">${f.manager}</div></div>
+      <div style="background:#F1F3F9;border-radius:8px;padding:12px;"><div style="color:#888;margin-bottom:4px;">Action taken</div><div style="color:#111;font-weight:500;">${f.action}</div></div>
+      <div style="background:#F1F3F9;border-radius:8px;padding:12px;"><div style="color:#888;margin-bottom:4px;">Resolution</div><div style="color:${f.statusColor};font-weight:500;">${f.resolution}</div></div>
+    </div>`;
+  document.getElementById('feedback-modal').style.display = 'flex';
+}
+
+/* ── AI CO-PILOT ── */
+let aiMode = 'rca';
+
+function setAIMode(mode) {
+  aiMode = mode;
+  const rcaBtn = document.getElementById('rca-btn');
+  const stressBtn = document.getElementById('stress-btn');
+  rcaBtn.style.background = mode==='rca' ? '#4A6CF7' : 'none';
+  rcaBtn.style.color = mode==='rca' ? '#fff' : '#555';
+  rcaBtn.style.borderColor = mode==='rca' ? '#4A6CF7' : '#e5e7eb';
+  stressBtn.style.background = mode==='stress' ? '#4A6CF7' : 'none';
+  stressBtn.style.color = mode==='stress' ? '#fff' : '#555';
+  stressBtn.style.borderColor = mode==='stress' ? '#4A6CF7' : '#e5e7eb';
+}
+
+function runAI() {
+  const out = document.getElementById('ai-output');
+  out.style.display = 'block';
+  out.innerHTML = '<div style="color:#888;font-size:13px;text-align:center;padding:20px;">Thinking...</div>';
+  const RCA = `<strong>1. Incident Summary</strong><br>Delivery delay of 4.5 hours reported on Order #WS-4821. Customer flagged non-delivery at 7:30 PM; SLA breach confirmed at 8:00 PM.<br><br><strong>2. Root Cause Identification</strong><br>Primary cause: Route 7 traffic congestion during peak hours compounded by agent Rajan M. completing an unscheduled redelivery attempt, adding 90 min to his batch. Secondary: No mid-route re-assignment trigger fired due to a threshold misconfiguration (delay flag set to 120 min vs. standard 60 min).<br><br><strong>3. Structural Fix</strong><br>Recalibrate SLA breach alert threshold to 45 min. Implement auto-reassignment for batches exceeding 75 min delay. Route 7 flagged for dynamic rerouting via Ring Road during 5–8 PM window.`;
+  const STRESS = `<strong>1. Bottleneck Prediction</strong><br>Primary bottleneck: Node Capacity. At 10x demand (est. 1,400 orders/day), Zone B dark store hits ceiling at ~900 units. Fleet capacity holds with gig-layer activation but pick-pack throughput becomes the constraint within 4 hours of surge onset.<br><br><strong>2. Mitigation Strategy</strong><br>Step 1 — Activate overflow SLA with pre-negotiated flex dark-store partner in Howrah (capacity: +600 units, 2-hr activation window). Step 2 — Trigger gig associate pool (12 on-call staff) for pick-pack augmentation; cap each brand at 300 orders/day to distribute load. Step 3 — Switch routing logic to cluster-based dispatch (zone-pinned agents) to eliminate cross-city trips and preserve &lt;4 hr SLA during surge.`;
+  setTimeout(() => {
+    out.innerHTML = `<div style="background:#F1F3F9;border-radius:8px;padding:16px;font-size:13px;color:#333;line-height:1.7;">${aiMode==='rca'?RCA:STRESS}</div><button onclick="document.getElementById('ai-output').style.display='none';document.getElementById('ai-input').value=''" style="margin-top:10px;padding:8px 16px;border:1px solid #e5e7eb;background:none;border-radius:8px;font-size:12px;cursor:pointer;color:#555;font-family:system-ui;">Reset</button>`;
+  }, 1200);
+}
+
+/* ── MODAL BACKDROP CLOSE ── */
+document.getElementById('order-modal').addEventListener('click', function(e){ if(e.target===this) this.style.display='none'; });
+document.getElementById('feedback-modal').addEventListener('click', function(e){ if(e.target===this) this.style.display='none'; });
+document.getElementById('ai-copilot-modal').addEventListener('click', function(e){ if(e.target===this) this.style.display='none'; });
+
+/* ── BOOT ── */
 render();
 </script>
 </body>
