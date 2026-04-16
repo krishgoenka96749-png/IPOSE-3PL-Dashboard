@@ -82,9 +82,11 @@
   .role-tab.active { color: var(--chalk); background: var(--carbon3); }
 
   /* offset all views below switcher */
-  #app { padding-top: 36px; }
-  #customer-view, #admin-view { padding-top: 36px; }
-  #customer-view, #admin-view { display: none; }
+  #app { padding-top: 36px; display: none; }
+  #customer-view { display: block; padding-top: 36px; }
+  #admin-view { display: none; padding-top: 36px; }
+  #founder-wrap { display: none; padding-top: 36px; background: #F8F9FB; min-height: 100vh; }
+  #founder-wrap #app { display: flex; padding-top: 0; height: calc(100vh - 36px); }
 
   /* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
   #app { display: flex; height: 100vh; overflow: hidden; }
@@ -355,12 +357,37 @@
 
 <!-- ═══════════════════ ROLE SWITCHER ═══════════════════ -->
 <div id="role-switcher">
-  <button class="role-tab active" onclick="switchRole('founder', this)">D2C Founder</button>
-  <button class="role-tab" onclick="switchRole('customer', this)">Customer</button>
+  <button class="role-tab active" onclick="switchRole('customer', this)">Customer</button>
+  <button class="role-tab" onclick="switchRole('founder', this)">D2C Founder</button>
   <button class="role-tab" onclick="switchRole('admin', this)">Admin</button>
 </div>
 
 <!-- ═══════════════════ FOUNDER VIEW (existing) ═══════════════════ -->
+<div id="founder-wrap">
+
+<!-- Saanyaa's brand identity bar -->
+<div style="background:linear-gradient(90deg,#0e0e0e 0%,#1a1020 50%,#0e0e0e 100%);border-bottom:1px solid rgba(255,255,255,0.06);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;font-family:'DM Mono',monospace;flex-shrink:0;">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c084fc,#818cf8);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">🌸</div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#f2eee8;letter-spacing:0.3px;font-family:'Syne',sans-serif;">Saanyaa's Cosmetics</div>
+      <div style="font-size:9px;color:#5a5a5a;letter-spacing:2px;text-transform:uppercase;margin-top:1px;">D2C Brand Portal · WhipShip</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:18px;">
+    <div style="display:flex;align-items:center;gap:6px;font-size:9px;color:#5a5a5a;letter-spacing:1px;text-transform:uppercase;">
+      <div style="width:6px;height:6px;border-radius:50%;background:#c084fc;animation:pulse-dot 2s infinite;"></div>
+      142 orders today
+    </div>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,0.06);"></div>
+    <div style="font-size:9px;color:#5a5a5a;letter-spacing:1px;text-transform:uppercase;">₹74,820 revenue</div>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,0.06);"></div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:9px;color:#00D166;letter-spacing:1px;text-transform:uppercase;">
+      <div style="width:5px;height:5px;border-radius:50%;background:#00D166;"></div>96.4% SLA
+    </div>
+  </div>
+</div>
+
 <div id="app">
 
   <div id="sidebar">
@@ -447,7 +474,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <div class="brand-pill"><div class="brand-dot"></div>GlowCraft Co.</div>
+      <div class="brand-pill"><div class="brand-dot"></div>Saanyaa's Cosmetics</div>
       <div class="ops-info">
         <div class="ops-label">Fulfillment Manager</div>
         <div class="ops-name">Priya Mehta</div>
@@ -459,7 +486,14 @@
   <div id="main">
     <div class="topbar">
       <div class="topbar-left">
-        <div><div class="page-title" id="page-title-text">Package Tracking</div></div>
+        <div>
+          <div class="page-title" id="page-title-text">Package Tracking</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div style="display:flex;align-items:center;gap:7px;">
+          <div style="width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#c084fc,#818cf8);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">🌸</div>
+          <div style="font-size:10px;color:var(--chalk-80);letter-spacing:0.5px;font-family:'DM Mono',monospace;">Saanyaa's Cosmetics</div>
+        </div>
       </div>
       <div class="topbar-right">
         <div class="integration-tag"><div class="integration-dot"></div>Shopify · Connected</div>
@@ -490,41 +524,104 @@
     <button class="action-secondary">Export</button>
   </div>
 </div>
+</div><!-- end #founder-wrap -->
 
 <!-- ═══════════════════ CUSTOMER VIEW ═══════════════════ -->
-<div id="customer-view" style="font-family:system-ui;background:#F8F9FB;min-height:100vh;">
+<div id="customer-view" style="font-family:system-ui;min-height:100vh;background:#fdf8f5;position:relative;overflow-x:hidden;">
+
+  <!-- Background decorative blobs -->
+  <div style="position:fixed;top:36px;right:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(199,169,255,0.18) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div style="position:fixed;bottom:-80px;left:-100px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,186,150,0.16) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div style="position:fixed;top:200px;left:30%;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(150,210,255,0.1) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
 
   <!-- Product Page -->
-  <div id="cust-product-page" style="max-width:860px;margin:0 auto;padding:32px 24px;">
-    <div style="margin-bottom:28px;">
-      <div style="font-size:20px;font-weight:600;color:#111;letter-spacing:-0.3px;">GlowCraft Co.</div>
-      <div style="font-size:13px;color:#888;margin-top:3px;">Premium skincare, delivered fast</div>
+  <div id="cust-product-page" style="max-width:900px;margin:0 auto;padding:32px 24px;position:relative;z-index:1;">
+
+    <!-- Hero brand header -->
+    <div style="background:linear-gradient(135deg,#fff8f4 0%,#f8f0ff 50%,#f0f4ff 100%);border:1px solid rgba(0,0,0,0.06);border-radius:20px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;">
+      <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(199,169,255,0.25),transparent);pointer-events:none;"></div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#9b6dff;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">✦ Powered by WhipShip</div>
+        <div style="font-size:26px;font-weight:800;color:#111;letter-spacing:-0.5px;line-height:1.1;">GlowCraft Co.</div>
+        <div style="font-size:13px;color:#777;margin-top:6px;">Premium skincare, delivered to your door in hours ✨</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:14px;">
+          <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:5px 12px;font-size:11px;color:#444;"><span>⭐</span><span style="font-weight:600;">4.8</span><span style="color:#aaa;">· 2,400+ reviews</span></div>
+          <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:5px 12px;font-size:11px;color:#444;"><span>🚀</span><span>Same-day delivery</span></div>
+          <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:5px 12px;font-size:11px;color:#444;"><span>🔄</span><span>Easy returns</span></div>
+        </div>
+      </div>
+      <div style="font-size:72px;opacity:0.15;user-select:none;flex-shrink:0;">🌿</div>
     </div>
+
+    <div style="font-size:13px;font-weight:600;color:#444;letter-spacing:0.3px;margin-bottom:14px;">Our bestsellers</div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
-        <div style="height:110px;background:#FDE8D8;border-radius:8px;margin-bottom:14px;"></div>
-        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Glow Serum 30ml</div>
-        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹899</div>
-        <button onclick="openOrderModal('Glow Serum 30ml','₹899')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.07);border-radius:16px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="height:160px;overflow:hidden;position:relative;">
+          <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=280&fit=crop" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.style.background='#FDE8D8'">
+          <div style="position:absolute;top:10px;right:10px;background:#fff;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#4A6CF7;">Bestseller</div>
+        </div>
+        <div style="padding:14px 16px 16px;">
+          <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:3px;">Glow Serum 30ml</div>
+          <div style="font-size:11px;color:#999;margin-bottom:10px;">Vitamin C · Brightening · Anti-aging</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:18px;font-weight:700;color:#111;">₹899</div>
+            <button onclick="openOrderModal('Glow Serum 30ml','₹899')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+          </div>
+        </div>
       </div>
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
-        <div style="height:110px;background:#D8E8FD;border-radius:8px;margin-bottom:14px;"></div>
-        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Night Cream 50ml</div>
-        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹1199</div>
-        <button onclick="openOrderModal('Night Cream 50ml','₹1199')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.07);border-radius:16px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="height:160px;overflow:hidden;position:relative;">
+          <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=280&fit=crop" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.style.background='#D8E8FD'">
+          <div style="position:absolute;top:10px;right:10px;background:#fff;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#7C3AED;">New</div>
+        </div>
+        <div style="padding:14px 16px 16px;">
+          <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:3px;">Night Cream 50ml</div>
+          <div style="font-size:11px;color:#999;margin-bottom:10px;">Retinol · Hydrating · Repair</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:18px;font-weight:700;color:#111;">₹1,199</div>
+            <button onclick="openOrderModal('Night Cream 50ml','₹1199')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+          </div>
+        </div>
       </div>
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
-        <div style="height:110px;background:#D8FDE8;border-radius:8px;margin-bottom:14px;"></div>
-        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Sunscreen SPF50</div>
-        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹649</div>
-        <button onclick="openOrderModal('Sunscreen SPF50','₹649')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.07);border-radius:16px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="height:160px;overflow:hidden;position:relative;">
+          <img src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=280&fit=crop" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.style.background='#D8FDE8'">
+        </div>
+        <div style="padding:14px 16px 16px;">
+          <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:3px;">Sunscreen SPF50</div>
+          <div style="font-size:11px;color:#999;margin-bottom:10px;">Broad spectrum · Lightweight · No white cast</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:18px;font-weight:700;color:#111;">₹649</div>
+            <button onclick="openOrderModal('Sunscreen SPF50','₹649')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+          </div>
+        </div>
       </div>
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px;">
-        <div style="height:110px;background:#F5D8FD;border-radius:8px;margin-bottom:14px;"></div>
-        <div style="font-size:14px;font-weight:500;color:#111;margin-bottom:4px;">Vitamin C Face Wash</div>
-        <div style="font-size:13px;color:#555;margin-bottom:14px;">₹449</div>
-        <button onclick="openOrderModal('Vitamin C Face Wash','₹449')" style="width:100%;padding:9px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Place Order</button>
+
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.07);border-radius:16px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="height:160px;overflow:hidden;position:relative;">
+          <img src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&h=280&fit=crop" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.style.background='#F5D8FD'">
+        </div>
+        <div style="padding:14px 16px 16px;">
+          <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:3px;">Vitamin C Face Wash</div>
+          <div style="font-size:11px;color:#999;margin-bottom:10px;">Gentle · Brightening · Daily use</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:18px;font-weight:700;color:#111;">₹449</div>
+            <button onclick="openOrderModal('Vitamin C Face Wash','₹449')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- Trust strip -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:28px;margin-top:28px;padding:18px;background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,0.06);">
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#555;"><span style="font-size:18px;">🚚</span><span>Free delivery over ₹799</span></div>
+      <div style="width:1px;height:20px;background:#e5e7eb;"></div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#555;"><span style="font-size:18px;">🔒</span><span>100% authentic products</span></div>
+      <div style="width:1px;height:20px;background:#e5e7eb;"></div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#555;"><span style="font-size:18px;">↩️</span><span>7-day hassle-free returns</span></div>
     </div>
   </div>
 
@@ -567,27 +664,42 @@
 
     <div id="tracking-map" style="height:240px;border-radius:12px;overflow:hidden;margin-bottom:16px;border:0.5px solid rgba(0,0,0,0.08);"></div>
 
-    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:42px;height:42px;border-radius:50%;background:#4A6CF7;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px;flex-shrink:0;">RM</div>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:500;color:#111;">Rajan Mehta</div>
-        <div style="font-size:11px;color:#888;margin-top:2px;">Delivery Agent · WhipShip verified · ⭐ 4.8 · 2-wheeler</div>
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
+      <div style="position:relative;flex-shrink:0;">
+        <img src="https://i.pravatar.cc/150?img=11" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #4A6CF7;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div style="display:none;width:48px;height:48px;border-radius:50%;background:#4A6CF7;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;">KG</div>
+        <div style="position:absolute;bottom:0;right:0;width:14px;height:14px;background:#22c55e;border-radius:50%;border:2px solid #fff;"></div>
       </div>
-      <button style="padding:8px 16px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;cursor:pointer;font-weight:500;">Call Agent</button>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:#111;">Krish Goenka</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">Delivery Agent · WhipShip verified · ⭐ 4.8 · 🛵 Scooter</div>
+      </div>
+      <button style="padding:8px 16px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;cursor:pointer;font-weight:500;">📞 Call Agent</button>
     </div>
   </div>
 
   <!-- Order Modal -->
   <div id="order-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10001;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:16px;padding:28px;width:380px;max-width:90vw;">
-      <div style="font-size:17px;font-weight:600;color:#111;margin-bottom:20px;">Complete your order</div>
+      <div style="font-size:17px;font-weight:600;color:#111;margin-bottom:6px;">Complete your order</div>
+      <div style="font-size:12px;color:#888;margin-bottom:20px;">Confirm delivery details and place your order</div>
       <div style="display:flex;flex-direction:column;gap:12px;">
-        <input id="o-name" placeholder="Full name" style="padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;">
-        <input id="o-address" placeholder="Delivery address" style="padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;">
-        <input id="o-product" placeholder="Product" readonly style="padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;background:#f9f9f9;color:#555;outline:none;font-family:system-ui;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <label style="font-size:13px;color:#555;">Qty:</label>
-          <input type="number" id="o-qty" value="1" min="1" style="width:70px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;">
+        <div>
+          <div style="font-size:11px;color:#888;margin-bottom:6px;font-weight:500;">DELIVERY ADDRESS</div>
+          <select id="o-address" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;color:#111;background:#fff;cursor:pointer;">
+            <option value="">Select a delivery address</option>
+            <option value="12A, Park Street, Kolkata - 700016">12A, Park Street, Kolkata - 700016</option>
+            <option value="Flat 4B, Salt Lake Sector V, Kolkata - 700091">Flat 4B, Salt Lake Sector V, Kolkata - 700091</option>
+            <option value="8, Ballygunge Place, Kolkata - 700019">8, Ballygunge Place, Kolkata - 700019</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#888;margin-bottom:6px;font-weight:500;">PRODUCT</div>
+          <input id="o-product" readonly style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;background:#f9f9f9;color:#555;outline:none;font-family:system-ui;">
+        </div>
+        <div>
+          <div style="font-size:11px;color:#888;margin-bottom:6px;font-weight:500;">QUANTITY</div>
+          <input type="number" id="o-qty" value="1" min="1" style="width:80px;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;outline:none;font-family:system-ui;">
         </div>
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
@@ -837,21 +949,86 @@
 </div>
 
 <!-- ═══════════════════ AI CO-PILOT ═══════════════════ -->
-<div id="ai-copilot-btn" onclick="document.getElementById('ai-copilot-modal').style.display='flex'" style="position:fixed;bottom:24px;right:24px;background:#4A6CF7;color:#fff;padding:11px 20px;border-radius:24px;font-size:12px;font-weight:500;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(74,108,247,0.4);font-family:system-ui;letter-spacing:0.3px;">AI Co-Pilot</div>
+<div id="ai-copilot-btn" onclick="openAICopilot()" style="position:fixed;bottom:24px;right:24px;background:#4A6CF7;color:#fff;padding:11px 20px;border-radius:24px;font-size:12px;font-weight:500;cursor:pointer;z-index:9998;box-shadow:0 4px 14px rgba(74,108,247,0.4);font-family:system-ui;letter-spacing:0.3px;display:flex;align-items:center;gap:7px;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(74,108,247,0.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(74,108,247,0.4)'">
+  <span style="font-size:14px;">✦</span><span id="copilot-btn-label">AI Co-Pilot</span>
+</div>
 
-<div id="ai-copilot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10000;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:28px;width:520px;max-width:90vw;max-height:80vh;overflow-y:auto;font-family:system-ui;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <div style="font-size:17px;font-weight:600;color:#111;">AI Co-Pilot</div>
-      <button onclick="document.getElementById('ai-copilot-modal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;">×</button>
+<div id="ai-copilot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);backdrop-filter:blur(2px);z-index:10000;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:20px;padding:0;width:540px;max-width:92vw;max-height:82vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+
+    <!-- Modal header -->
+    <div id="copilot-header" style="padding:24px 24px 20px;border-bottom:1px solid #f0f0f0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;background:linear-gradient(135deg,#4A6CF7,#7C3AED);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;">✦</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#111;font-family:system-ui;" id="copilot-title">WhipShip AI Co-Pilot</div>
+            <div style="font-size:12px;color:#888;margin-top:1px;font-family:system-ui;" id="copilot-subtitle">Powered by WhipShip Intelligence</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('ai-copilot-modal').style.display='none'" style="background:#f5f5f5;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;color:#666;display:flex;align-items:center;justify-content:center;">×</button>
+      </div>
+      <!-- Context pill -->
+      <div id="copilot-context-pill" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px;background:#f0f3ff;border:1px solid #dde3ff;border-radius:20px;padding:5px 12px;font-size:11px;color:#4A6CF7;font-family:system-ui;font-weight:500;"></div>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:16px;">
-      <button id="rca-btn" onclick="setAIMode('rca')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #4A6CF7;background:#4A6CF7;color:#fff;font-size:12px;cursor:pointer;font-family:system-ui;font-weight:500;">Generate Instant RCA</button>
-      <button id="stress-btn" onclick="setAIMode('stress')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #e5e7eb;background:none;color:#555;font-size:12px;cursor:pointer;font-family:system-ui;">Run Stress Test</button>
+
+    <!-- Modal body -->
+    <div style="padding:20px 24px;overflow-y:auto;flex:1;">
+      <!-- What is this -->
+      <div id="copilot-explainer" style="background:#fafafa;border:1px solid #f0f0f0;border-radius:12px;padding:14px 16px;margin-bottom:18px;font-family:system-ui;"></div>
+
+      <!-- Mode cards -->
+      <div id="copilot-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;"></div>
+
+      <!-- Input -->
+      <div style="font-size:11px;color:#888;margin-bottom:7px;font-weight:600;letter-spacing:0.5px;font-family:system-ui;" id="copilot-input-label">DESCRIBE YOUR SCENARIO</div>
+      <textarea id="ai-input" style="width:100%;height:80px;padding:12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;resize:none;outline:none;font-family:system-ui;transition:border-color 0.15s;" onfocus="this.style.borderColor='#4A6CF7'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+      <button onclick="runAI()" style="width:100%;padding:12px;background:#4A6CF7;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;font-family:system-ui;letter-spacing:0.3px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" id="copilot-analyze-btn">Analyze →</button>
+      <div id="ai-output" style="margin-top:16px;display:none;"></div>
+
+      <!-- Talk to Manager — founder only -->
+      <div id="copilot-manager-section" style="display:none;margin-top:24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="flex:1;height:1px;background:#f0f0f0;"></div>
+          <div style="font-size:11px;color:#bbb;font-family:system-ui;white-space:nowrap;padding:0 8px;">or speak to a human</div>
+          <div style="flex:1;height:1px;background:#f0f0f0;"></div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0f4ff 0%,#faf0ff 100%);border:1.5px solid #dde3ff;border-radius:16px;padding:20px;font-family:system-ui;">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+            <div style="position:relative;flex-shrink:0;">
+              <img src="https://i.pravatar.cc/150?img=47" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(74,108,247,0.2);" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div style="display:none;width:52px;height:52px;border-radius:50%;background:#4A6CF7;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;">PS</div>
+              <div style="position:absolute;bottom:1px;right:1px;width:13px;height:13px;background:#22c55e;border-radius:50%;border:2px solid #fff;"></div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:15px;font-weight:700;color:#111;">Priya Sharma</div>
+              <div style="font-size:12px;color:#666;margin-top:2px;">Senior Account Manager · WhipShip</div>
+              <div style="display:flex;align-items:center;gap:5px;margin-top:4px;"><div style="width:7px;height:7px;background:#22c55e;border-radius:50%;"></div><span style="font-size:11px;color:#22c55e;font-weight:500;">Online now</span><span style="font-size:11px;color:#aaa;">· Typically replies in &lt;5 min</span></div>
+            </div>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-size:10px;color:#555;text-align:center;">
+              <div style="font-size:16px;">⭐</div>
+              <div style="font-weight:600;color:#111;">4.9</div>
+              <div>rating</div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:#444;line-height:1.55;border:1px solid rgba(74,108,247,0.1);">
+            👋 Hi! I'm your dedicated account manager at WhipShip. Whether it's a billing question, a persistent SLA issue, or you want to scale your operations — I'm here. Let's talk.
+          </div>
+          <div id="manager-chat-box" style="display:none;margin-bottom:12px;">
+            <div id="manager-messages" style="background:#f8f9ff;border-radius:10px;padding:12px;max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:8px;border:1px solid #eef0ff;">
+              <div style="align-self:flex-start;background:#fff;border:1px solid #e5e7eb;border-radius:10px 10px 10px 2px;padding:9px 12px;font-size:12px;color:#333;max-width:85%;">Hi! How can I help you today? 😊</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <input id="manager-msg-input" placeholder="Type your message..." style="flex:1;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12px;outline:none;font-family:system-ui;" onfocus="this.style.borderColor='#4A6CF7'" onblur="this.style.borderColor='#e5e7eb'" onkeydown="if(event.key==='Enter')sendManagerMsg()">
+              <button onclick="sendManagerMsg()" style="padding:9px 14px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;cursor:pointer;font-weight:500;">Send</button>
+            </div>
+          </div>
+          <button onclick="startManagerChat()" id="start-chat-btn" style="width:100%;padding:12px;background:#4A6CF7;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:system-ui;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+            <span>💬</span> Talk to Priya Now
+          </button>
+        </div>
+      </div>
     </div>
-    <textarea id="ai-input" placeholder="Describe the incident or scenario..." style="width:100%;height:90px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;resize:none;outline:none;font-family:system-ui;"></textarea>
-    <button onclick="runAI()" style="width:100%;padding:11px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:500;cursor:pointer;margin-top:10px;font-family:system-ui;">Analyze Data</button>
-    <div id="ai-output" style="margin-top:16px;display:none;"></div>
   </div>
 </div>
 
@@ -859,6 +1036,10 @@
 @keyframes pulse-amber {
   0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)}
   50%{box-shadow:0 0 0 8px rgba(245,158,11,0)}
+}
+@keyframes map-pulse {
+  0%,100%{transform:scale(1);opacity:0.4}
+  50%{transform:scale(1.5);opacity:0}
 }
 </style>
 
@@ -1063,11 +1244,112 @@ function closePanel() {
 }
 
 function renderInventory(c) {
-  c.innerHTML = `<div class="shell-header"><div><div class="shell-page-title">Inventory Control</div><div class="shell-page-sub">Live stock across 8 urban fulfillment centers</div></div><div class="coming-badge"><div class="brand-dot"></div>In Development</div></div><div class="shell-kpi-row"><div class="shell-kpi"><div class="shell-kpi-label">Total SKUs Managed</div><div class="shell-kpi-value">1,248</div></div><div class="shell-kpi"><div class="shell-kpi-label">Low Stock Alerts</div><div class="shell-kpi-value" style="color:var(--amber)">14</div></div><div class="shell-kpi"><div class="shell-kpi-label">Fulfillment Centers</div><div class="shell-kpi-value">8</div></div></div><div class="shell-table"><div class="shell-table-head"><div class="shell-th">SKU</div><div class="shell-th" style="min-width:160px">Product</div><div class="shell-th">Stock Qty</div><div class="shell-th">FC Location</div><div class="shell-th">Status</div></div>${[['SK-001','Vitamin C Serum 30ml','48','Andheri West FC','In Stock'],['SK-002','Retinol Night Cream 50ml','12','Koramangala FC','Low Stock'],['SK-003','SPF 50 Sunscreen 80ml','200','Hinjewadi FC','In Stock'],['SK-004','Hair Growth Serum 50ml','7','Saket FC','Critical'],['SK-005','Rose Clay Mask 75g','91','Bandra FC','In Stock']].map(r=>`<div class="shell-row"><div class="shell-cell" style="color:var(--red)">${r[0]}</div><div class="shell-cell" style="min-width:160px">${r[1]}</div><div class="shell-cell">${r[2]}</div><div class="shell-cell">${r[3]}</div><div class="shell-cell" style="color:${r[4]==='In Stock'?'var(--green)':r[4]==='Critical'?'var(--red)':'var(--amber)'}">${r[4]}</div></div>`).join('')}<div class="shell-footer-note">Full inventory module · Coming Q3 2025</div></div>`;
+  c.innerHTML = `
+  <div class="kpi-strip">
+    <div class="kpi-card green-accent"><div class="kpi-label">Total SKUs</div><div class="kpi-number">1,248</div><div class="kpi-sub"><span class="kpi-delta up">↑ 12</span> added this week</div></div>
+    <div class="kpi-card amber-accent"><div class="kpi-label">Low Stock Alerts</div><div class="kpi-number" style="color:var(--amber)">14</div><div class="kpi-sub"><span class="kpi-delta warn">⚠</span> Action needed</div></div>
+    <div class="kpi-card blue-accent"><div class="kpi-label">Fulfillment Centers</div><div class="kpi-number">8</div><div class="kpi-sub"><span class="kpi-delta up">✓</span> All operational</div></div>
+    <div class="kpi-card"><div class="kpi-label">Stock Value</div><div class="kpi-number">₹42<span class="unit">L</span></div><div class="kpi-sub"><span class="kpi-delta up">↑ 8.2%</span> vs last month</div></div>
+  </div>
+  <div class="table-container">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--carbon2);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--chalk);">SKU Inventory</div>
+      <div style="font-size:9px;color:var(--ash);letter-spacing:1px;">Saanyaa's Cosmetics · Live stock</div>
+    </div>
+    <div style="display:grid;grid-template-columns:80px 1fr 90px 140px 100px 80px;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--carbon2);gap:8px;">
+      <div class="th">SKU</div><div class="th">Product</div><div class="th">Units</div><div class="th">Stock Level</div><div class="th">FC Location</div><div class="th">Status</div>
+    </div>
+    <div class="table-body">
+      ${[
+        {sku:'SK-001',name:'Glow Serum 30ml',units:720,max:1000,fc:'Andheri West',pct:72,status:'In Stock',scol:'var(--green)'},
+        {sku:'SK-002',name:'Night Cream 50ml',units:380,max:1000,fc:'Koramangala',pct:38,status:'Low Stock',scol:'var(--amber)'},
+        {sku:'SK-003',name:'Sunscreen SPF50',units:910,max:1000,fc:'Hinjewadi',pct:91,status:'In Stock',scol:'var(--green)'},
+        {sku:'SK-004',name:'Vitamin C Face Wash',units:180,max:1000,fc:'Bandra',pct:18,status:'Low Stock',scol:'var(--amber)'},
+        {sku:'SK-005',name:'Eye Cream 15ml',units:95,max:1000,fc:'Saket',pct:9,status:'Reorder Now',scol:'var(--red)'},
+      ].map(r=>`
+        <div style="display:grid;grid-template-columns:80px 1fr 90px 140px 100px 80px;padding:13px 18px;border-bottom:1px solid var(--border);align-items:center;gap:8px;">
+          <div style="font-size:10px;color:var(--red);letter-spacing:0.8px;">${r.sku}</div>
+          <div style="font-size:11px;color:var(--chalk);">${r.name}</div>
+          <div style="font-size:11px;color:var(--chalk);font-variant-numeric:tabular-nums;">${r.units.toLocaleString()}</div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ash);margin-bottom:4px;"><span>${r.pct}%</span><span>${r.units}/${r.max}</span></div>
+            <div style="height:4px;background:var(--carbon3);border-radius:2px;"><div style="height:100%;width:${r.pct}%;background:${r.scol};border-radius:2px;"></div></div>
+          </div>
+          <div style="font-size:10px;color:var(--ash);">${r.fc}</div>
+          <div><span class="badge ${r.status==='In Stock'?'delivered':r.status==='Reorder Now'?'out':'dispatched'}"><span class="badge-dot"></span>${r.status}</span></div>
+        </div>`).join('')}
+    </div>
+  </div>`;
 }
 
 function renderReturns(c) {
-  c.innerHTML = `<div class="shell-header"><div><div class="shell-page-title">Returns &amp; RTO</div><div class="shell-page-sub">Reverse logistics · Return to Origin analytics</div></div><div class="coming-badge"><div class="brand-dot"></div>In Development</div></div><div class="shell-kpi-row"><div class="shell-kpi"><div class="shell-kpi-label">RTO Rate (30 days)</div><div class="shell-kpi-value" style="color:var(--green)">4.2%</div></div><div class="shell-kpi"><div class="shell-kpi-label">Pending Returns</div><div class="shell-kpi-value" style="color:var(--amber)">23</div></div><div class="shell-kpi"><div class="shell-kpi-label">Avg. Return Cycle</div><div class="shell-kpi-value">38<span style="font-size:16px;color:var(--ash)">hr</span></div></div></div><div class="shell-table"><div class="shell-table-head"><div class="shell-th">Order ID</div><div class="shell-th" style="min-width:200px">Return Reason</div><div class="shell-th">Stage</div><div class="shell-th">Initiated</div></div>${[['WS-048101','Not home — 3 delivery attempts','In Transit','Mar 16'],['WS-048088','Customer refused delivery','Restocked','Mar 15'],['WS-048072','Damaged in transit','Under Review','Mar 14'],['WS-048060','Wrong item delivered','Pending Pickup','Mar 13'],['WS-048044','Quality issue reported','Restocked','Mar 11']].map(r=>`<div class="shell-row"><div class="shell-cell" style="color:var(--red)">${r[0]}</div><div class="shell-cell" style="min-width:200px">${r[1]}</div><div class="shell-cell">${r[2]}</div><div class="shell-cell">${r[3]}</div></div>`).join('')}<div class="shell-footer-note">Full returns &amp; RTO module · Coming Q3 2025</div></div>`;
+  c.innerHTML = `
+  <div class="kpi-strip">
+    <div class="kpi-card green-accent"><div class="kpi-label">RTO Rate (30d)</div><div class="kpi-number" style="color:var(--green)">4.2<span class="unit">%</span></div><div class="kpi-sub"><span class="kpi-delta up">↓ 0.6%</span> vs last month</div></div>
+    <div class="kpi-card amber-accent"><div class="kpi-label">Pending Returns</div><div class="kpi-number">23</div><div class="kpi-sub"><span class="kpi-delta warn">⚡</span> Awaiting action</div></div>
+    <div class="kpi-card blue-accent"><div class="kpi-label">Avg Return Cycle</div><div class="kpi-number">38<span class="unit">hr</span></div><div class="kpi-sub"><span class="kpi-delta up">✓</span> Within SLA</div></div>
+    <div class="kpi-card"><div class="kpi-label">Returns Processed</div><div class="kpi-number">142</div><div class="kpi-sub"><span class="kpi-delta up">↑ 9</span> this week</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div class="table-container">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--carbon2);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--chalk);">Delivery Issues</div>
+        <div style="font-size:9px;color:var(--amber);margin-top:2px;letter-spacing:1px;">26 cases this month</div>
+      </div>
+      <div class="table-body" style="padding:16px 18px;display:flex;flex-direction:column;gap:14px;">
+        ${[
+          {label:'Damaged in transit',count:12,pct:46,col:'var(--amber)'},
+          {label:'Wrong address / failed attempt',count:6,pct:23,col:'var(--amber)'},
+          {label:'Not delivered / RTO',count:8,pct:31,col:'var(--red)'},
+        ].map(r=>`
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--chalk);margin-bottom:6px;"><span>${r.label}</span><span style="color:${r.col};font-variant-numeric:tabular-nums;">${r.count} cases</span></div>
+            <div style="height:5px;background:var(--carbon3);border-radius:3px;"><div style="height:100%;width:${r.pct}%;background:${r.col};border-radius:3px;transition:width 0.4s;"></div></div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="table-container">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--carbon2);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--chalk);">Product Issues</div>
+        <div style="font-size:9px;color:var(--blue);margin-top:2px;letter-spacing:1px;">8 cases this month</div>
+      </div>
+      <div class="table-body" style="padding:16px 18px;display:flex;flex-direction:column;gap:14px;">
+        ${[
+          {label:'Defective / damaged product',count:5,pct:63,col:'var(--blue)'},
+          {label:'Not as described',count:3,pct:37,col:'var(--blue)'},
+        ].map(r=>`
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--chalk);margin-bottom:6px;"><span>${r.label}</span><span style="color:${r.col};font-variant-numeric:tabular-nums;">${r.count} cases</span></div>
+            <div style="height:5px;background:var(--carbon3);border-radius:3px;"><div style="height:100%;width:${r.pct}%;background:${r.col};border-radius:3px;transition:width 0.4s;"></div></div>
+          </div>`).join('')}
+        <div style="margin-top:8px;padding-top:12px;border-top:1px solid var(--border);font-size:9px;color:var(--ash);letter-spacing:1.5px;text-transform:uppercase;">Returns processed within 24h — WhipShip SLA</div>
+      </div>
+    </div>
+  </div>
+  <div class="table-container">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--carbon2);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--chalk);">Recent Returns</div>
+      <div style="font-size:9px;color:var(--ash);letter-spacing:1px;">Last 5 cases</div>
+    </div>
+    <div style="display:grid;grid-template-columns:110px 1fr 110px 80px;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--carbon2);gap:8px;">
+      <div class="th">Order ID</div><div class="th">Return Reason</div><div class="th">Stage</div><div class="th">Date</div>
+    </div>
+    <div class="table-body">
+      ${[
+        ['WS-048101','Not home — 3 delivery attempts','In Transit','Mar 16'],
+        ['WS-048088','Customer refused delivery','Restocked','Mar 15'],
+        ['WS-048072','Damaged in transit','Under Review','Mar 14'],
+        ['WS-048060','Wrong item delivered','Pending Pickup','Mar 13'],
+        ['WS-048044','Quality issue reported','Restocked','Mar 11'],
+      ].map(r=>`
+        <div style="display:grid;grid-template-columns:110px 1fr 110px 80px;padding:12px 18px;border-bottom:1px solid var(--border);align-items:center;gap:8px;">
+          <div style="font-size:10px;color:var(--red);">${r[0]}</div>
+          <div style="font-size:11px;color:var(--chalk);">${r[1]}</div>
+          <div style="font-size:10px;color:${r[2]==='Restocked'?'var(--green)':r[2]==='In Transit'?'var(--amber)':'var(--ash)'};">${r[2]}</div>
+          <div style="font-size:10px;color:var(--ash);">${r[3]}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
 }
 
 let revTab = '1M';
@@ -1110,9 +1392,12 @@ setInterval(() => {
 function switchRole(role, btn) {
   document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('app').style.display = role === 'founder' ? 'flex' : 'none';
+  currentRole = role;
+  document.getElementById('founder-wrap').style.display = role === 'founder' ? 'block' : 'none';
   document.getElementById('customer-view').style.display = role === 'customer' ? 'block' : 'none';
   document.getElementById('admin-view').style.display = role === 'admin' ? 'block' : 'none';
+  const btnLabel = document.getElementById('copilot-btn-label');
+  if (btnLabel) btnLabel.textContent = COPILOT_CONFIG[role].btnLabel;
   if (role === 'customer') { setTimeout(tryInitMap, 200); }
 }
 
@@ -1144,14 +1429,26 @@ function tryInitMap() {
   if (!el || el.offsetHeight === 0) return;
   if (typeof L === 'undefined') return;
   trackingMapInit = true;
-  custTrackingMap = L.map('tracking-map').setView([22.5726, 88.3639], 13);
+  custTrackingMap = L.map('tracking-map', {zoomControl:true}).setView([22.5726, 88.3639], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19}).addTo(custTrackingMap);
+
   const agentIcon = L.divIcon({
-    html:`<div style="width:36px;height:44px;position:relative;"><div style="width:36px;height:36px;border-radius:50%;background:#4A6CF7;border:2px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;font-family:system-ui;">RM</div><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:12px solid #4A6CF7;"></div></div>`,
-    iconSize:[40,48], iconAnchor:[20,48], className:''
+    html:`<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.18));">
+      <div style="position:relative;width:52px;height:52px;">
+        <div style="position:absolute;inset:0;border-radius:50%;background:rgba(74,108,247,0.15);animation:map-pulse 2s infinite;"></div>
+        <div style="position:absolute;inset:3px;border-radius:50%;background:#fff;border:2.5px solid #4A6CF7;overflow:hidden;">
+          <img src="https://i.pravatar.cc/150?img=11" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div style="background:#4A6CF7;color:#fff;font-size:13px;padding:2px 7px;border-radius:20px;margin-top:3px;font-family:system-ui;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(74,108,247,0.4);">🛵 On the way</div>
+      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #4A6CF7;margin-top:0;"></div>
+    </div>`,
+    iconSize:[60,90], iconAnchor:[30,90], className:''
   });
-  L.marker([22.5550, 88.3700], {icon: agentIcon}).addTo(custTrackingMap).bindPopup('Rajan Mehta · On the way');
-  L.polyline([[22.5200,88.3800],[22.5550,88.3700],[22.5900,88.3500]], {color:'#4A6CF7', dashArray:'8,6', weight:2}).addTo(custTrackingMap);
+
+  L.marker([22.5550, 88.3700], {icon: agentIcon}).addTo(custTrackingMap)
+    .bindPopup('<b>Krish Goenka</b><br>⭐ 4.8 · 🛵 Scooter<br><span style="color:#22c55e;font-size:11px;">● On the way · Est. 3:45 PM</span>');
+  L.polyline([[22.5200,88.3800],[22.5550,88.3700],[22.5900,88.3500]], {color:'#4A6CF7', dashArray:'8,6', weight:2.5, opacity:0.7}).addTo(custTrackingMap);
 }
 
 /* ── ADMIN FEEDBACK MODAL ── */
@@ -1179,29 +1476,160 @@ function openFeedback(i) {
 }
 
 /* ── AI CO-PILOT ── */
-let aiMode = 'rca';
+let aiMode = 'mode1';
+let currentRole = 'customer';
+
+const COPILOT_CONFIG = {
+  customer: {
+    btnLabel: 'Help with my order',
+    title: 'Order Assistant',
+    subtitle: 'Get instant help with your GlowCraft delivery',
+    contextPill: '📦 You are shopping on GlowCraft Co.',
+    explainer: '<div style="font-size:11px;font-weight:700;color:#4A6CF7;letter-spacing:0.5px;margin-bottom:6px;">HOW CAN I HELP?</div><div style="font-size:13px;color:#444;line-height:1.6;">Have a question about your order or delivery? I can look up your status, explain a delay, or help you with a return — instantly.</div>',
+    cards: [
+      {id:'mode1', icon:'📍', label:'Where is my order?', desc:'Get a plain-language update on exactly where your package is and when it will arrive.', color:'#4A6CF7'},
+      {id:'mode2', icon:'⏱️', label:'Why is it delayed?', desc:'Understand the reason for a delay and get a revised delivery estimate.', color:'#f59e0b'},
+    ],
+    inputLabel: 'DESCRIBE YOUR QUESTION',
+    placeholder: 'e.g. My order #WS-4829 was supposed to arrive by 3PM, it\'s 4PM now...',
+    btnText: 'Get Help →',
+    responses: {
+      mode1: `<strong>📍 Order #WS-4829 — Live Status</strong><br><br>Your order is currently <strong style="color:#f59e0b;">on the way</strong> with delivery agent Krish Goenka, who is approximately 3.2 km from your address at 8, Ballygunge Place.<br><br><strong>Timeline so far:</strong><br>✅ Order placed — 10:00 AM<br>✅ Packed & dispatched — 11:30 AM<br>🛵 Out for delivery — 1:15 PM<br>⏳ Estimated arrival — <strong>3:45 PM</strong><br><br>Krish is navigating current traffic on AJC Bose Road. No delays flagged.`,
+      mode2: `<strong>⏱️ Delay Explanation — Order #WS-4829</strong><br><br>Your order is running approximately <strong>35 minutes behind</strong> the original estimate. Here's why:<br><br>Heavy traffic was detected on AJC Bose Road between 12:30–2:00 PM, adding ~20 minutes to the route. An additional stop on the same delivery batch added ~15 minutes.<br><br><strong>Revised ETA: 4:10 PM</strong><br><br>Krish has been notified. If delivery isn't completed by 5:00 PM, you'll receive a full reschedule with priority slot for tomorrow morning.`,
+    }
+  },
+  founder: {
+    btnLabel: 'AI Co-Pilot',
+    title: 'WhipShip AI Co-Pilot',
+    subtitle: 'Operational intelligence for your brand',
+    contextPill: "🏪 Viewing as: Saanyaa's Cosmetics",
+    explainer: '<div style="font-size:11px;font-weight:700;color:#4A6CF7;letter-spacing:0.5px;margin-bottom:6px;">WHAT IS THIS?</div><div style="font-size:13px;color:#444;line-height:1.6;">When something goes wrong in your fulfillment pipeline — a delay, SLA breach, or demand surge — this tool helps you diagnose and respond in seconds. Pick a mode below.</div>',
+    cards: [
+      {id:'mode1', icon:'🔍', label:'Generate Instant RCA', desc:'Paste an incident — delayed orders, SLA breach, wrong delivery. Get a structured root cause with a fix plan.', color:'#4A6CF7'},
+      {id:'mode2', icon:'⚡', label:'Run Stress Test', desc:'Describe a demand surge — Big Billion Day, flash sale. Get bottleneck predictions and mitigation steps.', color:'#7C3AED'},
+    ],
+    inputLabel: 'DESCRIBE YOUR INCIDENT OR SCENARIO',
+    placeholder: 'e.g. 3 GlowCraft orders marked delivered but customer says not received...',
+    btnText: 'Analyze →',
+    responses: {
+      mode1: `<strong>1. Incident Summary</strong><br>Delivery delay of 4.5 hours reported on Order #WS-4821. Customer flagged non-delivery at 7:30 PM; SLA breach confirmed at 8:00 PM.<br><br><strong>2. Root Cause Identification</strong><br>Primary cause: Route 7 traffic congestion during peak hours compounded by agent completing an unscheduled redelivery attempt, adding 90 min to his batch. Secondary: No mid-route re-assignment trigger fired due to a threshold misconfiguration (delay flag set to 120 min vs. standard 60 min).<br><br><strong>3. Structural Fix</strong><br>Recalibrate SLA breach alert threshold to 45 min. Implement auto-reassignment for batches exceeding 75 min delay. Route 7 flagged for dynamic rerouting via Ring Road during 5–8 PM window.`,
+      mode2: `<strong>1. Bottleneck Prediction</strong><br>Primary bottleneck: Node Capacity. At 10x demand (est. 1,400 orders/day), Zone B dark store hits ceiling at ~900 units. Fleet capacity holds with gig-layer activation but pick-pack throughput becomes the constraint within 4 hours of surge onset.<br><br><strong>2. Mitigation Strategy</strong><br>Step 1 — Activate overflow SLA with pre-negotiated flex dark-store partner in Howrah (+600 units, 2-hr activation). Step 2 — Trigger gig associate pool (12 on-call staff) for pick-pack augmentation; cap each brand at 300 orders/day. Step 3 — Switch to cluster-based dispatch (zone-pinned agents) to eliminate cross-city trips and preserve &lt;4 hr SLA.`,
+    }
+  },
+  admin: {
+    btnLabel: 'AI Co-Pilot',
+    title: 'WhipShip AI Co-Pilot',
+    subtitle: 'Fleet-level intelligence across all 28 clients',
+    contextPill: '🔐 Viewing as: WhipShip Admin',
+    explainer: '<div style="font-size:11px;font-weight:700;color:#4A6CF7;letter-spacing:0.5px;margin-bottom:6px;">WHAT IS THIS?</div><div style="font-size:13px;color:#444;line-height:1.6;">As an admin, you need macro-level answers fast. Use this to diagnose cross-client SLA patterns, generate weekly ops reports, or identify systemic risks before they escalate.</div>',
+    cards: [
+      {id:'mode1', icon:'📊', label:'Generate Ops Report', desc:'Summarize SLA performance, employee scores, and open client issues into a shareable weekly report.', color:'#4A6CF7'},
+      {id:'mode2', icon:'🚨', label:'Diagnose SLA Risk', desc:'Describe a pattern you\'re seeing — late deliveries in a zone, high RTO on a route — get a systemic diagnosis.', color:'#ef4444'},
+    ],
+    inputLabel: 'DESCRIBE THE PATTERN OR REQUEST',
+    placeholder: 'e.g. Generate weekly ops report for Apr 7–14, highlight SLA misses and top performers...',
+    btnText: 'Generate →',
+    responses: {
+      mode1: `<strong>📊 Weekly Ops Report — Apr 7–14, 2026</strong><br><br><strong>SLA Summary</strong><br>On-time delivery: 96.4% ✅ (target 95%) · Packaging accuracy: 98.1% ✅ · Returns ≤24h: 91.2% ⚠️ (target 93%) · Checkpoint compliance: 99.3% ✅<br><br><strong>Top Performers</strong><br>🥇 Rajan Mehta — 94 pts, 98% on-time, zero damage incidents<br>🥈 Shreya Kulkarni — 88 pts, 99% pack accuracy, 0 errors March<br>🥉 Arjun Kumar — 86 pts, most improved Q1<br><br><strong>Open Client Issues</strong><br>GlowCraft: 3 GPS-disputed deliveries — RCA in progress<br>Leafly: Cold chain packaging flagged — inspection scheduled<br><br><strong>Action Items</strong><br>1. Returns SLA dipped below target — escalate to Aryan M. for process review<br>2. Leafly cold chain — Suresh P. to complete inspection by Apr 17`,
+      mode2: `<strong>🚨 SLA Risk Diagnosis</strong><br><br><strong>Pattern Identified:</strong> Zone 7 (South Kolkata) showing 3.2x higher delay rate on weekday evenings (5–8 PM) over the past 2 weeks. Affects GlowCraft and BrewNest primarily.<br><br><strong>Root Cause:</strong> AJC Bose Road and Park Street intersection congestion peaks at 6 PM. Current route algorithm doesn't account for time-of-day traffic variance — all batches use the same static routing.<br><br><strong>Recommended Fixes:</strong><br>1. Enable time-aware routing for Zone 7 batches dispatched after 4 PM — reroute via Rashbehari Ave<br>2. Shift last-mile dispatch window from 4:30 PM to 3:45 PM for South Kolkata orders<br>3. Flag Neeraj K. (Zone 7 agent) for route-optimization training — his on-time rate dropped 12% this week`,
+    }
+  }
+};
+
+function openAICopilot() {
+  const role = currentRole;
+  const cfg = COPILOT_CONFIG[role];
+  aiMode = 'mode1';
+  document.getElementById('ai-output').style.display = 'none';
+  document.getElementById('ai-input').value = '';
+  document.getElementById('ai-input').placeholder = cfg.placeholder;
+  document.getElementById('copilot-title').textContent = cfg.title;
+  document.getElementById('copilot-subtitle').textContent = cfg.subtitle;
+  document.getElementById('copilot-context-pill').textContent = cfg.contextPill;
+  document.getElementById('copilot-explainer').innerHTML = cfg.explainer;
+  document.getElementById('copilot-input-label').textContent = cfg.inputLabel;
+  document.getElementById('copilot-analyze-btn').textContent = cfg.btnText;
+  document.getElementById('copilot-cards').innerHTML = cfg.cards.map((c,i) => `
+    <div id="copilot-card-${c.id}" onclick="setAIMode('${c.id}')" style="border:2px solid ${i===0?c.color:'#e5e7eb'};background:${i===0?'#f0f3ff':'#fafafa'};border-radius:12px;padding:14px 16px;cursor:pointer;transition:all 0.15s;">
+      <div style="font-size:20px;margin-bottom:8px;">${c.icon}</div>
+      <div style="font-size:13px;font-weight:700;color:${i===0?c.color:'#555'};margin-bottom:5px;">${c.label}</div>
+      <div style="font-size:11px;color:#666;line-height:1.5;">${c.desc}</div>
+    </div>`).join('');
+  // Show manager section only for founder
+  const mgr = document.getElementById('copilot-manager-section');
+  if (mgr) mgr.style.display = role === 'founder' ? 'block' : 'none';
+  // Reset chat
+  const chatBox = document.getElementById('manager-chat-box');
+  const startBtn = document.getElementById('start-chat-btn');
+  if (chatBox) chatBox.style.display = 'none';
+  if (startBtn) startBtn.style.display = 'flex';
+  const msgs = document.getElementById('manager-messages');
+  if (msgs) msgs.innerHTML = '<div style="align-self:flex-start;background:#fff;border:1px solid #e5e7eb;border-radius:10px 10px 10px 2px;padding:9px 12px;font-size:12px;color:#333;max-width:85%;">Hi! How can I help you today? 😊</div>';
+  document.getElementById('ai-copilot-modal').style.display = 'flex';
+}
+
+function startManagerChat() {
+  document.getElementById('manager-chat-box').style.display = 'block';
+  document.getElementById('start-chat-btn').style.display = 'none';
+  setTimeout(() => document.getElementById('manager-msg-input').focus(), 100);
+}
+
+const MANAGER_REPLIES = [
+  "Got it, let me pull that up for you right away! 🔍",
+  "Thanks for reaching out. I'm checking this with our ops team now.",
+  "Absolutely, I'll escalate this to the warehouse team immediately.",
+  "I see the issue. Let me arrange a callback with our fulfillment head within the hour.",
+  "This has been flagged as high priority. You'll receive a resolution by EOD today. ✅",
+];
+let managerReplyIdx = 0;
+
+function sendManagerMsg() {
+  const input = document.getElementById('manager-msg-input');
+  const msgs = document.getElementById('manager-messages');
+  const text = input.value.trim();
+  if (!text) return;
+  msgs.innerHTML += `<div style="align-self:flex-end;background:#4A6CF7;border-radius:10px 10px 2px 10px;padding:9px 12px;font-size:12px;color:#fff;max-width:85%;">${text}</div>`;
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => {
+    const reply = MANAGER_REPLIES[managerReplyIdx % MANAGER_REPLIES.length];
+    managerReplyIdx++;
+    msgs.innerHTML += `<div style="align-self:flex-start;background:#fff;border:1px solid #e5e7eb;border-radius:10px 10px 10px 2px;padding:9px 12px;font-size:12px;color:#333;max-width:85%;">${reply}</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 900);
+}
 
 function setAIMode(mode) {
+  const role = currentRole;
+  const cfg = COPILOT_CONFIG[role];
   aiMode = mode;
-  const rcaBtn = document.getElementById('rca-btn');
-  const stressBtn = document.getElementById('stress-btn');
-  rcaBtn.style.background = mode==='rca' ? '#4A6CF7' : 'none';
-  rcaBtn.style.color = mode==='rca' ? '#fff' : '#555';
-  rcaBtn.style.borderColor = mode==='rca' ? '#4A6CF7' : '#e5e7eb';
-  stressBtn.style.background = mode==='stress' ? '#4A6CF7' : 'none';
-  stressBtn.style.color = mode==='stress' ? '#fff' : '#555';
-  stressBtn.style.borderColor = mode==='stress' ? '#4A6CF7' : '#e5e7eb';
+  cfg.cards.forEach(c => {
+    const card = document.getElementById('copilot-card-' + c.id);
+    if (!card) return;
+    const active = c.id === mode;
+    card.style.border = `2px solid ${active ? c.color : '#e5e7eb'}`;
+    card.style.background = active ? '#f0f3ff' : '#fafafa';
+    card.querySelector('div:nth-child(2)').style.color = active ? c.color : '#555';
+  });
 }
 
 function runAI() {
   const out = document.getElementById('ai-output');
   out.style.display = 'block';
-  out.innerHTML = '<div style="color:#888;font-size:13px;text-align:center;padding:20px;">Thinking...</div>';
-  const RCA = `<strong>1. Incident Summary</strong><br>Delivery delay of 4.5 hours reported on Order #WS-4821. Customer flagged non-delivery at 7:30 PM; SLA breach confirmed at 8:00 PM.<br><br><strong>2. Root Cause Identification</strong><br>Primary cause: Route 7 traffic congestion during peak hours compounded by agent Rajan M. completing an unscheduled redelivery attempt, adding 90 min to his batch. Secondary: No mid-route re-assignment trigger fired due to a threshold misconfiguration (delay flag set to 120 min vs. standard 60 min).<br><br><strong>3. Structural Fix</strong><br>Recalibrate SLA breach alert threshold to 45 min. Implement auto-reassignment for batches exceeding 75 min delay. Route 7 flagged for dynamic rerouting via Ring Road during 5–8 PM window.`;
-  const STRESS = `<strong>1. Bottleneck Prediction</strong><br>Primary bottleneck: Node Capacity. At 10x demand (est. 1,400 orders/day), Zone B dark store hits ceiling at ~900 units. Fleet capacity holds with gig-layer activation but pick-pack throughput becomes the constraint within 4 hours of surge onset.<br><br><strong>2. Mitigation Strategy</strong><br>Step 1 — Activate overflow SLA with pre-negotiated flex dark-store partner in Howrah (capacity: +600 units, 2-hr activation window). Step 2 — Trigger gig associate pool (12 on-call staff) for pick-pack augmentation; cap each brand at 300 orders/day to distribute load. Step 3 — Switch routing logic to cluster-based dispatch (zone-pinned agents) to eliminate cross-city trips and preserve &lt;4 hr SLA during surge.`;
+  out.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:16px;color:#888;font-size:13px;font-family:system-ui;"><div style="width:18px;height:18px;border:2px solid #4A6CF7;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;"></div>Analyzing...</div>';
+  if (!document.getElementById('spin-style')) {
+    const s = document.createElement('style');
+    s.id = 'spin-style';
+    s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(s);
+  }
+  const cfg = COPILOT_CONFIG[currentRole];
+  const response = cfg.responses[aiMode] || cfg.responses['mode1'];
   setTimeout(() => {
-    out.innerHTML = `<div style="background:#F1F3F9;border-radius:8px;padding:16px;font-size:13px;color:#333;line-height:1.7;">${aiMode==='rca'?RCA:STRESS}</div><button onclick="document.getElementById('ai-output').style.display='none';document.getElementById('ai-input').value=''" style="margin-top:10px;padding:8px 16px;border:1px solid #e5e7eb;background:none;border-radius:8px;font-size:12px;cursor:pointer;color:#555;font-family:system-ui;">Reset</button>`;
-  }, 1200);
+    out.innerHTML = `
+      <div style="background:#f8f9ff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;font-size:13px;color:#333;line-height:1.75;font-family:system-ui;">${response}</div>
+      <button onclick="document.getElementById('ai-output').style.display='none';document.getElementById('ai-input').value=''" style="margin-top:12px;padding:8px 16px;border:1px solid #e5e7eb;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#555;font-family:system-ui;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">← Ask another question</button>`;
+  }, 1400);
 }
 
 /* ── MODAL BACKDROP CLOSE ── */
@@ -1209,8 +1637,13 @@ document.getElementById('order-modal').addEventListener('click', function(e){ if
 document.getElementById('feedback-modal').addEventListener('click', function(e){ if(e.target===this) this.style.display='none'; });
 document.getElementById('ai-copilot-modal').addEventListener('click', function(e){ if(e.target===this) this.style.display='none'; });
 
-/* ── BOOT ── */
+/* ── BOOT: default to customer view, pre-render founder in background ── */
 render();
+currentRole = 'customer';
+document.getElementById('copilot-btn-label').textContent = COPILOT_CONFIG['customer'].btnLabel;
+document.getElementById('founder-wrap').style.display = 'none';
+document.getElementById('customer-view').style.display = 'block';
+document.getElementById('admin-view').style.display = 'none';
 </script>
 </body>
 </html>
