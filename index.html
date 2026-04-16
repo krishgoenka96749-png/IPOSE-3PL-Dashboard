@@ -527,22 +527,22 @@
 </div><!-- end #founder-wrap -->
 
 <!-- ═══════════════════ CUSTOMER VIEW ═══════════════════ -->
-<div id="customer-view" style="font-family:system-ui;min-height:100vh;background:#fdf8f5;position:relative;overflow-x:hidden;">
+<div id="customer-view" style="font-family:system-ui;min-height:100vh;background:#fdf8f5;position:relative;overflow-x:hidden;overflow-y:auto;height:calc(100vh - 36px);">
 
   <!-- Background decorative blobs -->
-  <div style="position:fixed;top:36px;right:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(199,169,255,0.18) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
-  <div style="position:fixed;bottom:-80px;left:-100px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,186,150,0.16) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
-  <div style="position:fixed;top:200px;left:30%;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(150,210,255,0.1) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div style="position:fixed;top:36px;right:-120px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,61,46,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div style="position:fixed;bottom:-80px;left:-100px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,61,46,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div style="position:fixed;top:200px;left:30%;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(0,200,151,0.07) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
 
   <!-- Product Page -->
   <div id="cust-product-page" style="max-width:900px;margin:0 auto;padding:32px 24px;position:relative;z-index:1;">
 
     <!-- Hero brand header -->
-    <div style="background:linear-gradient(135deg,#fff8f4 0%,#f8f0ff 50%,#f0f4ff 100%);border:1px solid rgba(0,0,0,0.06);border-radius:20px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;">
-      <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(199,169,255,0.25),transparent);pointer-events:none;"></div>
+    <div style="background:linear-gradient(135deg,#fff8f4 0%,#fff0ee 50%,#fff5f4 100%);border:1px solid rgba(0,0,0,0.06);border-radius:20px;padding:28px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;position:relative;">
+      <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,61,46,0.12),transparent);pointer-events:none;"></div>
       <div>
-        <div style="font-size:11px;font-weight:600;color:#9b6dff;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">✦ Powered by WhipShip</div>
-        <div style="font-size:26px;font-weight:800;color:#111;letter-spacing:-0.5px;line-height:1.1;">GlowCraft Co.</div>
+        <div style="font-size:11px;font-weight:600;color:#ff3d2e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">✦ Powered by WhipShip</div>
+        <div style="font-size:26px;font-weight:800;color:#111;letter-spacing:-0.5px;line-height:1.1;">Saanyaa's Cosmetics</div>
         <div style="font-size:13px;color:#777;margin-top:6px;">Premium skincare, delivered to your door in hours ✨</div>
         <div style="display:flex;align-items:center;gap:12px;margin-top:14px;">
           <div style="display:flex;align-items:center;gap:5px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:5px 12px;font-size:11px;color:#444;"><span>⭐</span><span style="font-weight:600;">4.8</span><span style="color:#aaa;">· 2,400+ reviews</span></div>
@@ -559,14 +559,14 @@
       <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.07);border-radius:16px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
         <div style="height:160px;overflow:hidden;position:relative;">
           <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=280&fit=crop" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.style.background='#FDE8D8'">
-          <div style="position:absolute;top:10px;right:10px;background:#fff;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#4A6CF7;">Bestseller</div>
+          <div style="position:absolute;top:10px;right:10px;background:#fff;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ff3d2e;">Bestseller</div>
         </div>
         <div style="padding:14px 16px 16px;">
           <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:3px;">Glow Serum 30ml</div>
           <div style="font-size:11px;color:#999;margin-bottom:10px;">Vitamin C · Brightening · Anti-aging</div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font-size:18px;font-weight:700;color:#111;">₹899</div>
-            <button onclick="openOrderModal('Glow Serum 30ml','₹899')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+            <button onclick="openOrderModal('Glow Serum 30ml','₹899')" style="padding:8px 18px;background:#ff3d2e;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
           </div>
         </div>
       </div>
@@ -574,14 +574,14 @@
       <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.07);border-radius:16px;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
         <div style="height:160px;overflow:hidden;position:relative;">
           <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=280&fit=crop" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.style.background='#D8E8FD'">
-          <div style="position:absolute;top:10px;right:10px;background:#fff;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#7C3AED;">New</div>
+          <div style="position:absolute;top:10px;right:10px;background:#fff;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ff3d2e;">New</div>
         </div>
         <div style="padding:14px 16px 16px;">
           <div style="font-size:14px;font-weight:600;color:#111;margin-bottom:3px;">Night Cream 50ml</div>
           <div style="font-size:11px;color:#999;margin-bottom:10px;">Retinol · Hydrating · Repair</div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font-size:18px;font-weight:700;color:#111;">₹1,199</div>
-            <button onclick="openOrderModal('Night Cream 50ml','₹1199')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+            <button onclick="openOrderModal('Night Cream 50ml','₹1199')" style="padding:8px 18px;background:#ff3d2e;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
           </div>
         </div>
       </div>
@@ -595,7 +595,7 @@
           <div style="font-size:11px;color:#999;margin-bottom:10px;">Broad spectrum · Lightweight · No white cast</div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font-size:18px;font-weight:700;color:#111;">₹649</div>
-            <button onclick="openOrderModal('Sunscreen SPF50','₹649')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+            <button onclick="openOrderModal('Sunscreen SPF50','₹649')" style="padding:8px 18px;background:#ff3d2e;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
           </div>
         </div>
       </div>
@@ -609,7 +609,7 @@
           <div style="font-size:11px;color:#999;margin-bottom:10px;">Gentle · Brightening · Daily use</div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font-size:18px;font-weight:700;color:#111;">₹449</div>
-            <button onclick="openOrderModal('Vitamin C Face Wash','₹449')" style="padding:8px 18px;background:#4A6CF7;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
+            <button onclick="openOrderModal('Vitamin C Face Wash','₹449')" style="padding:8px 18px;background:#ff3d2e;border:none;border-radius:20px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Add to order</button>
           </div>
         </div>
       </div>
@@ -627,9 +627,9 @@
 
   <!-- Tracking Page -->
   <div id="cust-tracking-page" style="display:none;max-width:860px;margin:0 auto;padding:32px 24px;">
-    <button onclick="showProductPage()" style="background:none;border:none;color:#4A6CF7;font-size:13px;cursor:pointer;margin-bottom:20px;padding:0;">← Back to products</button>
+    <button onclick="showProductPage()" style="background:none;border:none;color:#ff3d2e;font-size:13px;cursor:pointer;margin-bottom:20px;padding:0;">← Back to products</button>
     <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:18px 20px;margin-bottom:16px;">
-      <div style="font-size:12px;color:#888;margin-bottom:2px;">GlowCraft Co.</div>
+      <div style="font-size:12px;color:#888;margin-bottom:2px;">Saanyaa's Cosmetics</div>
       <div style="font-size:15px;font-weight:600;color:#111;">Order #WS-4829 <span style="font-size:11px;font-weight:400;color:#888;" id="order-placed-time"></span></div>
     </div>
 
@@ -637,16 +637,16 @@
     <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:28px 20px;margin-bottom:16px;overflow:hidden;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;position:relative;">
         <div style="position:absolute;top:18px;left:calc(12.5% + 18px);right:calc(12.5% + 18px);height:2px;background:#e5e7eb;z-index:0;"></div>
-        <div style="position:absolute;top:18px;left:calc(12.5% + 18px);width:calc(50% - 18px);height:2px;background:#4A6CF7;z-index:1;"></div>
+        <div style="position:absolute;top:18px;left:calc(12.5% + 18px);width:calc(50% - 18px);height:2px;background:#ff3d2e;z-index:1;"></div>
 
         <div style="display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1;">
-          <div style="width:36px;height:36px;border-radius:50%;background:#4A6CF7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">✓</div>
-          <div style="font-size:11px;font-weight:500;color:#4A6CF7;text-align:center;">Order Placed</div>
+          <div style="width:36px;height:36px;border-radius:50%;background:#ff3d2e;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">✓</div>
+          <div style="font-size:11px;font-weight:500;color:#ff3d2e;text-align:center;">Order Placed</div>
           <div style="font-size:10px;color:#999;text-align:center;">10:00 AM</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1;">
-          <div style="width:36px;height:36px;border-radius:50%;background:#4A6CF7;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">✓</div>
-          <div style="font-size:11px;font-weight:500;color:#4A6CF7;text-align:center;">Packed &amp; Dispatched</div>
+          <div style="width:36px;height:36px;border-radius:50%;background:#ff3d2e;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">✓</div>
+          <div style="font-size:11px;font-weight:500;color:#ff3d2e;text-align:center;">Packed &amp; Dispatched</div>
           <div style="font-size:10px;color:#999;text-align:center;">11:30 AM</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:8px;z-index:2;flex:1;">
@@ -666,15 +666,15 @@
 
     <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.08);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;">
       <div style="position:relative;flex-shrink:0;">
-        <img src="https://i.pravatar.cc/150?img=11" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #4A6CF7;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div style="display:none;width:48px;height:48px;border-radius:50%;background:#4A6CF7;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;">KG</div>
-        <div style="position:absolute;bottom:0;right:0;width:14px;height:14px;background:#22c55e;border-radius:50%;border:2px solid #fff;"></div>
+        <img src="https://i.pravatar.cc/150?img=11" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #ff3d2e;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div style="display:none;width:48px;height:48px;border-radius:50%;background:#ff3d2e;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;">KG</div>
+        <div style="position:absolute;bottom:0;right:0;width:14px;height:14px;background:#00c897;border-radius:50%;border:2px solid #fff;"></div>
       </div>
       <div style="flex:1;">
         <div style="font-size:14px;font-weight:600;color:#111;">Krish Goenka</div>
         <div style="font-size:11px;color:#888;margin-top:2px;">Delivery Agent · WhipShip verified · ⭐ 4.8 · 🛵 Scooter</div>
       </div>
-      <button style="padding:8px 16px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:12px;cursor:pointer;font-weight:500;">📞 Call Agent</button>
+      <button style="padding:8px 16px;background:#ff3d2e;border:none;border-radius:8px;color:#fff;font-size:12px;cursor:pointer;font-weight:500;">📞 Call Agent</button>
     </div>
   </div>
 
@@ -703,7 +703,7 @@
         </div>
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
-        <button onclick="confirmOrder()" style="flex:1;padding:11px;background:#4A6CF7;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Confirm Order</button>
+        <button onclick="confirmOrder()" style="flex:1;padding:11px;background:#ff3d2e;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Confirm Order</button>
         <button onclick="document.getElementById('order-modal').style.display='none'" style="padding:11px 16px;border:1px solid #e5e7eb;background:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:system-ui;">Cancel</button>
       </div>
     </div>
@@ -1436,26 +1436,26 @@ function tryInitMap() {
     html:`<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.18));">
       <div style="position:relative;width:52px;height:52px;">
         <div style="position:absolute;inset:0;border-radius:50%;background:rgba(74,108,247,0.15);animation:map-pulse 2s infinite;"></div>
-        <div style="position:absolute;inset:3px;border-radius:50%;background:#fff;border:2.5px solid #4A6CF7;overflow:hidden;">
+        <div style="position:absolute;inset:3px;border-radius:50%;background:#fff;border:2.5px solid #ff3d2e;overflow:hidden;">
           <img src="https://i.pravatar.cc/150?img=11" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
         </div>
       </div>
-      <div style="background:#4A6CF7;color:#fff;font-size:13px;padding:2px 7px;border-radius:20px;margin-top:3px;font-family:system-ui;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(74,108,247,0.4);">🛵 On the way</div>
-      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #4A6CF7;margin-top:0;"></div>
+      <div style="background:#ff3d2e;color:#fff;font-size:13px;padding:2px 7px;border-radius:20px;margin-top:3px;font-family:system-ui;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(74,108,247,0.4);">🛵 On the way</div>
+      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #ff3d2e;margin-top:0;"></div>
     </div>`,
     iconSize:[60,90], iconAnchor:[30,90], className:''
   });
 
   L.marker([22.5550, 88.3700], {icon: agentIcon}).addTo(custTrackingMap)
     .bindPopup('<b>Krish Goenka</b><br>⭐ 4.8 · 🛵 Scooter<br><span style="color:#22c55e;font-size:11px;">● On the way · Est. 3:45 PM</span>');
-  L.polyline([[22.5200,88.3800],[22.5550,88.3700],[22.5900,88.3500]], {color:'#4A6CF7', dashArray:'8,6', weight:2.5, opacity:0.7}).addTo(custTrackingMap);
+  L.polyline([[22.5200,88.3800],[22.5550,88.3700],[22.5900,88.3500]], {color:'#ff3d2e', dashArray:'8,6', weight:2.5, opacity:0.7}).addTo(custTrackingMap);
 }
 
 /* ── ADMIN FEEDBACK MODAL ── */
 const FEEDBACK_DATA = [
   {dept:'Packaging',text:'Box size S-3 too small for GlowCraft serums',emp:'Ravi T.',date:'2 days ago',status:'Flagged',statusColor:'#ef4444',manager:'Pooja S.',action:'Escalated to vendor',resolution:'In progress'},
   {dept:'Delivery',text:'Route 7 traffic delays 30+ min on weekday evenings',emp:'Neeraj K.',date:'5 days ago',status:'Under Review',statusColor:'#f59e0b',manager:'Aryan M.',action:'Route analysis initiated',resolution:'Pending'},
-  {dept:'Warehouse',text:'Fragile stickers running out at Zone B',emp:'Deepa M.',date:'Today',status:'Acknowledged',statusColor:'#4A6CF7',manager:'Suresh P.',action:'Restock ordered',resolution:'In progress'},
+  {dept:'Warehouse',text:'Fragile stickers running out at Zone B',emp:'Deepa M.',date:'Today',status:'Acknowledged',statusColor:'#ff3d2e',manager:'Suresh P.',action:'Restock ordered',resolution:'In progress'},
   {dept:'Packaging',text:'Weighing scale at packing station 3 incorrect',emp:'Kavya R.',date:'3 days ago',status:'Resolved',statusColor:'#22c55e',manager:'Pooja S.',action:'Scale replaced',resolution:'Resolved Apr 12'},
   {dept:'Delivery',text:'Route 4 customers not home 12–3PM',emp:'Amar J.',date:'1 week ago',status:'Under Review',statusColor:'#f59e0b',manager:'Aryan M.',action:'Time-slot study started',resolution:'Pending'},
   {dept:'Warehouse',text:'Cold storage temp fluctuating — Leafly shipments',emp:'Sunita B.',date:'Yesterday',status:'Flagged',statusColor:'#ef4444',manager:'Suresh P.',action:'Tech team alerted',resolution:'In progress'},
@@ -1483,11 +1483,11 @@ const COPILOT_CONFIG = {
   customer: {
     btnLabel: 'Help with my order',
     title: 'Order Assistant',
-    subtitle: 'Get instant help with your GlowCraft delivery',
-    contextPill: '📦 You are shopping on GlowCraft Co.',
-    explainer: '<div style="font-size:11px;font-weight:700;color:#4A6CF7;letter-spacing:0.5px;margin-bottom:6px;">HOW CAN I HELP?</div><div style="font-size:13px;color:#444;line-height:1.6;">Have a question about your order or delivery? I can look up your status, explain a delay, or help you with a return — instantly.</div>',
+    subtitle: 'Get instant help with your Saanyaa delivery',
+    contextPill: '📦 You are shopping on Saanyaa Cosmetics',
+    explainer: '<div style="font-size:11px;font-weight:700;color:#ff3d2e;letter-spacing:0.5px;margin-bottom:6px;">HOW CAN I HELP?</div><div style="font-size:13px;color:#444;line-height:1.6;">Have a question about your order or delivery? I can look up your status, explain a delay, or help you with a return — instantly.</div>',
     cards: [
-      {id:'mode1', icon:'📍', label:'Where is my order?', desc:'Get a plain-language update on exactly where your package is and when it will arrive.', color:'#4A6CF7'},
+      {id:'mode1', icon:'📍', label:'Where is my order?', desc:'Get a plain-language update on exactly where your package is and when it will arrive.', color:'#ff3d2e'},
       {id:'mode2', icon:'⏱️', label:'Why is it delayed?', desc:'Understand the reason for a delay and get a revised delivery estimate.', color:'#f59e0b'},
     ],
     inputLabel: 'DESCRIBE YOUR QUESTION',
@@ -1503,9 +1503,9 @@ const COPILOT_CONFIG = {
     title: 'WhipShip AI Co-Pilot',
     subtitle: 'Operational intelligence for your brand',
     contextPill: "🏪 Viewing as: Saanyaa's Cosmetics",
-    explainer: '<div style="font-size:11px;font-weight:700;color:#4A6CF7;letter-spacing:0.5px;margin-bottom:6px;">WHAT IS THIS?</div><div style="font-size:13px;color:#444;line-height:1.6;">When something goes wrong in your fulfillment pipeline — a delay, SLA breach, or demand surge — this tool helps you diagnose and respond in seconds. Pick a mode below.</div>',
+    explainer: '<div style="font-size:11px;font-weight:700;color:#ff3d2e;letter-spacing:0.5px;margin-bottom:6px;">WHAT IS THIS?</div><div style="font-size:13px;color:#444;line-height:1.6;">When something goes wrong in your fulfillment pipeline — a delay, SLA breach, or demand surge — this tool helps you diagnose and respond in seconds. Pick a mode below.</div>',
     cards: [
-      {id:'mode1', icon:'🔍', label:'Generate Instant RCA', desc:'Paste an incident — delayed orders, SLA breach, wrong delivery. Get a structured root cause with a fix plan.', color:'#4A6CF7'},
+      {id:'mode1', icon:'🔍', label:'Generate Instant RCA', desc:'Paste an incident — delayed orders, SLA breach, wrong delivery. Get a structured root cause with a fix plan.', color:'#ff3d2e'},
       {id:'mode2', icon:'⚡', label:'Run Stress Test', desc:'Describe a demand surge — Big Billion Day, flash sale. Get bottleneck predictions and mitigation steps.', color:'#7C3AED'},
     ],
     inputLabel: 'DESCRIBE YOUR INCIDENT OR SCENARIO',
@@ -1521,9 +1521,9 @@ const COPILOT_CONFIG = {
     title: 'WhipShip AI Co-Pilot',
     subtitle: 'Fleet-level intelligence across all 28 clients',
     contextPill: '🔐 Viewing as: WhipShip Admin',
-    explainer: '<div style="font-size:11px;font-weight:700;color:#4A6CF7;letter-spacing:0.5px;margin-bottom:6px;">WHAT IS THIS?</div><div style="font-size:13px;color:#444;line-height:1.6;">As an admin, you need macro-level answers fast. Use this to diagnose cross-client SLA patterns, generate weekly ops reports, or identify systemic risks before they escalate.</div>',
+    explainer: '<div style="font-size:11px;font-weight:700;color:#ff3d2e;letter-spacing:0.5px;margin-bottom:6px;">WHAT IS THIS?</div><div style="font-size:13px;color:#444;line-height:1.6;">As an admin, you need macro-level answers fast. Use this to diagnose cross-client SLA patterns, generate weekly ops reports, or identify systemic risks before they escalate.</div>',
     cards: [
-      {id:'mode1', icon:'📊', label:'Generate Ops Report', desc:'Summarize SLA performance, employee scores, and open client issues into a shareable weekly report.', color:'#4A6CF7'},
+      {id:'mode1', icon:'📊', label:'Generate Ops Report', desc:'Summarize SLA performance, employee scores, and open client issues into a shareable weekly report.', color:'#ff3d2e'},
       {id:'mode2', icon:'🚨', label:'Diagnose SLA Risk', desc:'Describe a pattern you\'re seeing — late deliveries in a zone, high RTO on a route — get a systemic diagnosis.', color:'#ef4444'},
     ],
     inputLabel: 'DESCRIBE THE PATTERN OR REQUEST',
